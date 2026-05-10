@@ -6,6 +6,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -37,7 +38,7 @@ export class AuthService {
     return userWithoutPassword;
   }
 
-  async login(loginDTO: LoginDTO) {
+  async login(loginDTO: LoginDto) {
     const userExists = await this.prisma.user.findUnique({
       where: {
         email: loginDTO.email,
