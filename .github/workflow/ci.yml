@@ -1,19 +1,17 @@
 name: Backend CI
 
-# 1. Quand est-ce que ce robot doit se réveiller ?
 on:
   push:
     branches: ["main"]
   pull_request:
     branches: ["main"]
 
-# 2. Que doit-il faire ?
 jobs:
   test-and-build:
-    runs-on: ubuntu-latest # Le système d'exploitation du robot
+    runs-on: ubuntu-latest
 
     steps:
-      # Étape A : Le robot télécharge ton code
+      # Étape A : Le robot télécharge le code
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -21,24 +19,21 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20" # La version standard actuelle
+          node-version: "20"
           cache: "npm"
 
-      # Étape C : Installer les dépendances de ton projet
+      # Étape C : Installer les dépendances du projet
       - name: Install dependencies
-        # TODO 1 : Remplace la commande 'echo' par la BONNE commande NPM pour installer les dépendances proprement dans une CI (voir les erreurs de juniors au-dessus).
         run: npm ci
 
-      # Étape D : Générer le client Prisma (Crucial, sinon NestJS ne comprendra pas Prisma)
+      # Étape D : Générer le client Prisma
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      # Étape E : Lancer le linter (Vérifier la syntaxe)
+      # Étape E : Lancer le linter
       - name: Run Linter
-        # TODO 2 : Remplace par la commande npm qui lance ton linter (regarde dans les scripts de ton package.json)
         run: npm run lint
 
       # Étape F : Lancer les tests unitaires que tu viens de coder !
       - name: Run Unit Tests
-        # TODO 3 : Remplace par la commande npm qui lance les tests unitaires.
         run: npm run test
