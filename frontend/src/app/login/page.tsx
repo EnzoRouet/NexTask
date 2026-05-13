@@ -24,7 +24,6 @@ export default function LoginPage() {
       setError("Identifiants invalides");
       return;
     }
-
     router.push("/");
   };
 
