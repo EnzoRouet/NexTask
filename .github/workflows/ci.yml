@@ -39,6 +39,6 @@ jobs:
       - name: Run Linter
         run: npm run lint
 
-      # Étape F : Lancer les tests unitaires que tu viens de coder !
+      # Étape F : Lancer les tests unitaires
       - name: Run Unit Tests
         run: npm run test
