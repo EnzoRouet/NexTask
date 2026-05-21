@@ -22,7 +22,7 @@ const mockPrismaService = {
 describe('AuthService', () => {
   let service: AuthService;
   let prisma: typeof mockPrismaService;
-  let jwt = JwtService;
+  let jwt: JwtService;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -87,11 +87,6 @@ describe('AuthService', () => {
       password: 'mot_de_passe_hache',
     };
 
-    const expectedPayload = {
-      sub: mockUserObject.id,
-      email: mockUserObject.email,
-    };
-
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...expectedUser } = mockUserObject;
 
@@ -106,7 +101,6 @@ describe('AuthService', () => {
     // Assert
     expect(register).toEqual(expectedUser);
     expect(prisma.user.findUnique).toHaveBeenCalledTimes(1);
-    expect(jwt.signAsync).toHaveBeenCalledWith(expectedPayload);
   });
 
   it('should throw an UnauthorizedException if user does not exist', async () => {
@@ -160,6 +154,11 @@ describe('AuthService', () => {
       password: '01234567890',
     };
 
+    const expectedPayload = {
+      sub: mockUserArray.id,
+      email: mockUserArray.email,
+    };
+
     prisma.user.findUnique.mockResolvedValue(mockUserArray);
     (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
@@ -175,5 +174,6 @@ describe('AuthService', () => {
       access_token: 'faux_token_jwt_pour_le_test',
     });
     expect(prisma.user.findUnique).toHaveBeenCalledTimes(1);
+    expect(jwt.signAsync).toHaveBeenCalledWith(expectedPayload);
   });
 });
