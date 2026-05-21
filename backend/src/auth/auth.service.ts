@@ -63,10 +63,10 @@ export class AuthService {
 
     const payload = { sub: userExists.id, email: userExists.email };
 
-    const acces_token = await this.jwt.signAsync(payload);
+    const access_token = await this.jwt.signAsync(payload);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...userWithoutPassword } = userExists;
-    return { user: userWithoutPassword, acces_token };
+    return { user: userWithoutPassword, access_token };
   }
 }

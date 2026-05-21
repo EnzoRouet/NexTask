@@ -5,6 +5,7 @@ import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
+import { JwtService } from '@nestjs/jwt';
 
 // On mock le module bcrypt pour pas prendre 3 plombes
 jest.mock('bcrypt');
@@ -28,6 +29,14 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         { provide: PrismaService, useValue: mockPrismaService },
+        {
+          provide: JwtService,
+          useValue: {
+            signAsync: jest
+              .fn()
+              .mockResolvedValue('faux_token_jwt_pour_le_test'),
+          },
+        },
       ],
     }).compile();
 
@@ -153,7 +162,10 @@ describe('AuthService', () => {
     const userLoged = await service.login(loginTestDTO);
 
     // Assert
-    expect(userLoged).toEqual(expectedUser);
+    expect(userLoged).toEqual({
+      user: expectedUser,
+      acces_token: 'faux_token_jwt_pour_le_test',
+    });
     expect(prisma.user.findUnique).toHaveBeenCalledTimes(1);
   });
 });
