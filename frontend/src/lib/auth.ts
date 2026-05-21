@@ -33,7 +33,7 @@ export const authOptions: NextAuthOptions = {
           }
 
           const data = await response.json();
-          return data;
+          return { ...data.user, access_token: data.acces_token };
         } catch (err) {
           console.error(err);
           return null;

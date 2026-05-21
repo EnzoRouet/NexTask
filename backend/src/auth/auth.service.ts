@@ -7,10 +7,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwt: JwtService,
+  ) {}
 
   async register(createDTO: RegisterDto) {
     const userExists = await this.prisma.user.findUnique({
@@ -31,11 +35,10 @@ export class AuthService {
         password: hashedPassword,
         name: createDTO.name,
       },
+      omit: { password: true },
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...userWithoutPassword } = newUser;
-    return userWithoutPassword;
+    return newUser;
   }
 
   async login(loginDTO: LoginDto) {
@@ -58,8 +61,12 @@ export class AuthService {
       throw new UnauthorizedException('Identifiants invalides');
     }
 
+    const payload = { sub: userExists.id, email: userExists.email };
+
+    const acces_token = await this.jwt.signAsync(payload);
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...userWithoutPassword } = userExists;
-    return userWithoutPassword;
+    return { user: userWithoutPassword, acces_token };
   }
 }
