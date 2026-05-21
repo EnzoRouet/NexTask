@@ -174,7 +174,6 @@ describe('AuthService', () => {
       access_token: 'faux_token_jwt_pour_le_test',
     });
     expect(prisma.user.findUnique).toHaveBeenCalledTimes(1);
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    expect(jwt.signAsync).toHaveBeenCalledWith(expectedPayload);
+    expect(jest.spyOn(jwt, 'signAsync')).toHaveBeenCalledWith(expectedPayload);
   });
 });
