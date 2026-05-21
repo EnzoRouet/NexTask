@@ -85,13 +85,13 @@ describe('AuthService', () => {
       password: 'mot_de_passe_hache',
     };
 
-    prisma.user.findUnique.mockResolvedValue(null);
-    prisma.user.create.mockResolvedValue(mockUserObject);
-    // On utilise notre mock bcrypt pour un test hash rapide
-    (bcrypt.hash as jest.Mock).mockResolvedValue('faux_hash_rapide');
-
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...expectedUser } = mockUserObject;
+
+    prisma.user.findUnique.mockResolvedValue(null);
+    prisma.user.create.mockResolvedValue(expectedUser);
+    // On utilise notre mock bcrypt pour un test hash rapide
+    (bcrypt.hash as jest.Mock).mockResolvedValue('faux_hash_rapide');
 
     // Act
     const register = await service.register(createDTO);
@@ -164,7 +164,7 @@ describe('AuthService', () => {
     // Assert
     expect(userLoged).toEqual({
       user: expectedUser,
-      acces_token: 'faux_token_jwt_pour_le_test',
+      access_token: 'faux_token_jwt_pour_le_test',
     });
     expect(prisma.user.findUnique).toHaveBeenCalledTimes(1);
   });
