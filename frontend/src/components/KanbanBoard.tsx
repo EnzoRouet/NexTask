@@ -4,11 +4,14 @@ import { Ticket, TicketStatus } from "@/app/board/page";
 import { useState } from "react";
 import KanbanColumn from "./KanbanColumn";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { apiFetch } from "@/lib/api";
 
 export default function KanbanBoard({
   initialTickets,
+  token,
 }: Readonly<{
   initialTickets: Ticket[];
+  token?: string;
 }>) {
   const [tickets, setTickets] = useState(initialTickets);
 
@@ -20,14 +23,29 @@ export default function KanbanBoard({
     );
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (!over?.id) {
       return;
     }
+    const previousTickets = tickets;
 
     moveTicket(active.id.toString(), over.id as TicketStatus);
+
+    try {
+      await apiFetch<Ticket>(
+        `/tickets/${active.id}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ status: over.id as TicketStatus }),
+        },
+        token,
+      );
+    } catch (error) {
+      console.error("[Drag Error]: Le serveur a refusé le déplacement", error);
+      setTickets(previousTickets);
+    }
   };
 
   return (

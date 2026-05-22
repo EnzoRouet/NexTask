@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import KanbanBoard from "@/components/KanbanBoard";
+import { apiFetch } from "@/lib/api";
 
 export type TicketStatus = "TODO" | "IN_PROGRESS" | "DONE";
 type Priority = "LOW" | "MEDIUM" | "HIGH";
@@ -14,46 +15,18 @@ export interface Ticket {
   priority: Priority;
 }
 
-// On crée un mock de test
-const mockTickets: Ticket[] = [
-  {
-    id: "1",
-    title: "Configurer la base Prisma",
-    description: "Créer les modèles User et Ticket",
-    status: "DONE",
-    priority: "HIGH",
-  },
-  {
-    id: "2",
-    title: "Créer le layout du Board",
-    description: "Utiliser Tailwind et Flexbox",
-    status: "DONE",
-    priority: "MEDIUM",
-  },
-  {
-    id: "3",
-    title: "Implémenter le Kanban",
-    description: "Gérer l'état des colonnes",
-    status: "IN_PROGRESS",
-    priority: "HIGH",
-  },
-  {
-    id: "4",
-    title: "Ajouter le Drag & Drop",
-    description: "Utiliser dnd-kit",
-    status: "TODO",
-    priority: "LOW",
-  },
-];
-
 export default async function BoardPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session) {
+  if (!session?.access_token) {
     redirect("/login");
   }
 
-  const tickets = mockTickets;
+  const tickets = await apiFetch<Ticket[]>(
+    "/tickets",
+    { method: "GET" },
+    session.access_token,
+  );
 
   return (
     <div className="h-full flex flex-col">
@@ -65,7 +38,7 @@ export default async function BoardPage() {
       </div>
 
       <div className="p-4 text-yellow-800 rounded">
-        <KanbanBoard initialTickets={tickets} />
+        <KanbanBoard initialTickets={tickets} token={session.access_token} />
       </div>
     </div>
   );

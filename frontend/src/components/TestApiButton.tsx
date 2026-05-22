@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client"; // Le passeport pour utiliser useState et onClick
+"use client";
 
 import { useState } from "react";
 import { apiFetch } from "@/lib/api";
 
-// On attend le token depuis le composant parent (la page serveur)
 export default function TestApiButton({ token }: { token?: string }) {
   const [result, setResult] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);

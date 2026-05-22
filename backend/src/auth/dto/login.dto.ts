@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const LoginSchema = z.object({
-  email: z.string().email("Format d'email invalide"),
+  email: z.email("Format d'email invalide"),
   password: z.string(),
 });
 

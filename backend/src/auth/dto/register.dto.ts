@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const RegisterSchema = z.object({
-  email: z.string().email("Format d'email invalide"),
+  email: z.email("Format d'email invalide"),
   password: z
     .string()
     .min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
