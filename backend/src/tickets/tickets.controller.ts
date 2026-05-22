@@ -8,6 +8,7 @@ import {
   Delete,
   UsePipes,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { TicketsService } from './tickets.service';
 import { ZodValidationPipe } from '../pipes/zod-validation.pipe';
@@ -33,8 +34,9 @@ export class TicketsController {
   }
 
   @Get()
-  findAll() {
-    return this.ticketsService.findAll();
+  findAll(@Query('projectId') projectId: string) {
+    // On reçoit projectId depuis l'URL, et on le donne au Service !
+    return this.ticketsService.findAll(projectId);
   }
 
   @Get(':id')

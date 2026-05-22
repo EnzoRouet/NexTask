@@ -1,6 +1,6 @@
 "use client";
 
-import { Ticket } from "@/app/board/page";
+import { Ticket } from "@/app/[projectId]/board/page";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 

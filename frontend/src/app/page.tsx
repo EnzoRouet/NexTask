@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import LogoutButton from "@/components/LogoutButton";
-import TestApiButton from "@/components/TestApiButton"; // 1. L'import
+import TestApiButton from "@/components/TestApiButton";
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions);

@@ -13,17 +13,26 @@ export interface Ticket {
   description: string | null;
   status: TicketStatus;
   priority: Priority;
+  projectId: string;
 }
 
-export default async function BoardPage() {
+interface BoardPageProps {
+  params: {
+    projectId: string;
+  };
+}
+
+export default async function BoardPage({ params }: Readonly<BoardPageProps>) {
   const session = await getServerSession(authOptions);
 
   if (!session?.access_token) {
     redirect("/login");
   }
 
+  const currentProjectId = params.projectId;
+
   const tickets = await apiFetch<Ticket[]>(
-    "/tickets",
+    `/tickets?projectId=${currentProjectId}`,
     { method: "GET" },
     session.access_token,
   );
@@ -38,7 +47,11 @@ export default async function BoardPage() {
       </div>
 
       <div className="p-4 text-yellow-800 rounded">
-        <KanbanBoard initialTickets={tickets} token={session.access_token} />
+        <KanbanBoard
+          initialTickets={tickets}
+          token={session.access_token}
+          projectId={currentProjectId}
+        />
       </div>
     </div>
   );

@@ -14,8 +14,10 @@ export class TicketsService {
     return response;
   }
 
-  async findAll() {
-    return await this.prisma.ticket.findMany();
+  async findAll(projectId: string) {
+    return await this.prisma.ticket.findMany({
+      where: { projectId },
+    });
   }
 
   async findOne(id: string) {
