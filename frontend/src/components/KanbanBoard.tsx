@@ -1,6 +1,6 @@
 "use client";
 
-import { Ticket, TicketStatus } from "@/app/[projectId]/board/page";
+import { Ticket, TicketStatus } from "@/types/tickets";
 import { useState } from "react";
 import KanbanColumn from "./KanbanColumn";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";

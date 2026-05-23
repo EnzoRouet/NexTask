@@ -7,7 +7,7 @@ import {
 } from "@/lib/validations/ticket";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
-import { Ticket } from "@/app/[projectId]/board/page";
+import { Ticket } from "@/types/tickets";
 
 interface CreateTicketModalProps {
   isOpen: boolean;

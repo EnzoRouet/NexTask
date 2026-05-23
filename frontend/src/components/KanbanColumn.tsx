@@ -1,6 +1,6 @@
 "use client";
 
-import { Ticket } from "@/app/[projectId]/board/page";
+import { Ticket } from "@/types/tickets";
 import { useDroppable } from "@dnd-kit/core";
 import { TicketCard } from "./TicketCard";
 
