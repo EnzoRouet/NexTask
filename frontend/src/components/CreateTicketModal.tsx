@@ -73,7 +73,9 @@ export function CreateTicketModal({
         </div>
 
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(onSubmit, (erreursZod) =>
+            console.log("Zod bloque car :", erreursZod),
+          )}
           className="p-6 flex flex-col gap-4"
         >
           <div>

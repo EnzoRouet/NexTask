@@ -18,6 +18,12 @@ export default function KanbanBoard({
 }>) {
   const [tickets, setTickets] = useState(initialTickets);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [prevInitialTickets, setPrevInitialTickets] = useState(initialTickets);
+
+  if (initialTickets !== prevInitialTickets) {
+    setPrevInitialTickets(initialTickets);
+    setTickets(initialTickets);
+  }
 
   const moveTicket = (ticketId: string, newStatus: TicketStatus) => {
     setTickets(

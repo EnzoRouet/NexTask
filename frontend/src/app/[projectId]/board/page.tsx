@@ -17,9 +17,9 @@ export interface Ticket {
 }
 
 interface BoardPageProps {
-  params: {
+  params: Promise<{
     projectId: string;
-  };
+  }>;
 }
 
 export default async function BoardPage({ params }: Readonly<BoardPageProps>) {
@@ -29,10 +29,10 @@ export default async function BoardPage({ params }: Readonly<BoardPageProps>) {
     redirect("/login");
   }
 
-  const currentProjectId = params.projectId;
+  const { projectId } = await params;
 
   const tickets = await apiFetch<Ticket[]>(
-    `/tickets?projectId=${currentProjectId}`,
+    `/tickets?projectId=${projectId}`,
     { method: "GET" },
     session.access_token,
   );
@@ -50,7 +50,7 @@ export default async function BoardPage({ params }: Readonly<BoardPageProps>) {
         <KanbanBoard
           initialTickets={tickets}
           token={session.access_token}
-          projectId={currentProjectId}
+          projectId={projectId}
         />
       </div>
     </div>
