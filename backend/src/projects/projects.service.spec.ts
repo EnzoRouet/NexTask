@@ -120,7 +120,7 @@ describe('ProjectsService', () => {
       prisma.project.update.mockResolvedValue(updatedProject);
 
       // Act
-      const result = await service.update(id, updateDto, userId);
+      const result = await service.update(id, userId, updateDto);
 
       // Assert
       expect(result).toEqual(updatedProject);

@@ -105,7 +105,7 @@ describe('ProjectsController', () => {
 
       // Assert
       expect(result).toEqual(expectedResult);
-      expect(service.update).toHaveBeenCalledWith(id, dto, mockUser.id);
+      expect(service.update).toHaveBeenCalledWith(id, mockUser.id, dto);
     });
   });
 
