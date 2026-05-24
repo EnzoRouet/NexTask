@@ -10,9 +10,9 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
-  async create(createProjectDto: CreateProjectDto) {
+  async create(createProjectDto: CreateProjectDto, userId: string) {
     return await this.prisma.project.create({
-      data: createProjectDto,
+      data: { ...createProjectDto, ownerId: userId },
     });
   }
 

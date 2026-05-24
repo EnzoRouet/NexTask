@@ -39,12 +39,12 @@ describe('TicketsService', () => {
     prisma = module.get(PrismaService);
   });
 
-  it('devrait être défini', () => {
+  it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
   describe('create', () => {
-    it("devrait créer un ticket si l'utilisateur a accès au projet", async () => {
+    it('should create a ticket if the user has access to the project', async () => {
       // Arrange
       const createDto: CreateTicketDto = {
         title: 'Nouveau ticket',
@@ -67,7 +67,7 @@ describe('TicketsService', () => {
       expect(prisma.ticket.create).toHaveBeenCalledWith({ data: createDto });
     });
 
-    it("devrait lancer ForbiddenException si l'utilisateur n'a pas accès au projet", async () => {
+    it('should throw a ForbiddenException if the user does not have access to the project', async () => {
       // Arrange
       const createDto: CreateTicketDto = {
         title: 'T',
@@ -75,7 +75,7 @@ describe('TicketsService', () => {
       };
       prisma.project.findFirst.mockResolvedValue(null);
 
-      // Act & Assert (Spécificité : tester une exception regroupe souvent Act et Assert)
+      // Act & Assert
       await expect(service.create(createDto, userId)).rejects.toThrow(
         ForbiddenException,
       );
@@ -84,7 +84,7 @@ describe('TicketsService', () => {
   });
 
   describe('findAll', () => {
-    it('devrait retourner la liste des tickets filtrée par projet et droits', async () => {
+    it('should return the list of tickets filtered by project and permissions', async () => {
       // Arrange
       const projectId = 'projet-123';
       const expectedTickets = [{ id: 'uuid-1', title: 'Test', projectId }];
@@ -107,7 +107,7 @@ describe('TicketsService', () => {
   });
 
   describe('findOne', () => {
-    it("devrait retourner un ticket si l'ID existe et que l'utilisateur a les droits", async () => {
+    it('should return a ticket if the ID exists and the user has permissions', async () => {
       // Arrange
       const id = 'uuid-1';
       const expectedTicket = { id, title: 'Test' };
@@ -128,7 +128,7 @@ describe('TicketsService', () => {
       });
     });
 
-    it("devrait lancer une NotFoundException si le ticket n'existe pas ou accès refusé", async () => {
+    it('should throw a NotFoundException if the ticket does not exist or access is denied', async () => {
       // Arrange
       prisma.ticket.findFirst.mockResolvedValue(null);
 
@@ -140,7 +140,7 @@ describe('TicketsService', () => {
   });
 
   describe('update', () => {
-    it('devrait mettre à jour et retourner le ticket', async () => {
+    it('should update and return the ticket', async () => {
       // Arrange
       const id = 'uuid-1';
       const updateDto: UpdateTicketDto = { status: 'IN_PROGRESS' };
@@ -162,7 +162,7 @@ describe('TicketsService', () => {
   });
 
   describe('remove', () => {
-    it('devrait supprimer le ticket', async () => {
+    it('should delete the ticket', async () => {
       // Arrange
       const id = 'uuid-1';
       const existingTicket = { id, title: 'Test' };

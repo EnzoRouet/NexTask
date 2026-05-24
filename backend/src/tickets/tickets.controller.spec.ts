@@ -38,12 +38,12 @@ describe('TicketsController', () => {
     service = module.get(TicketsService);
   });
 
-  it('devrait être défini', () => {
+  it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
   describe('create', () => {
-    it('devrait appeler service.create avec le bon DTO et le userId', () => {
+    it('should call service.create with the correct DTO and userId', () => {
       // Arrange
       const dto: CreateTicketDto = { title: 'Test', projectId: 'projet-123' };
       const expectedResult = { id: 'uuid-1', ...dto };
@@ -59,7 +59,7 @@ describe('TicketsController', () => {
   });
 
   describe('findAll', () => {
-    it('devrait appeler service.findAll avec le projectId et userId', () => {
+    it('should call service.findAll with the projectId and userId', () => {
       // Arrange
       const projectId = 'projet-123';
       const expectedResult = [{ id: 'uuid-1', title: 'Test' }];
@@ -75,7 +75,7 @@ describe('TicketsController', () => {
   });
 
   describe('findOne', () => {
-    it('devrait appeler service.findOne avec le bon ID et userId', () => {
+    it('should call service.findOne with the correct ID and userId', () => {
       // Arrange
       const id = 'uuid-1';
       const expectedResult = { id, title: 'Test' };
@@ -91,7 +91,7 @@ describe('TicketsController', () => {
   });
 
   describe('update', () => {
-    it('devrait appeler service.update avec ID, DTO et userId', () => {
+    it('should call service.update with ID, DTO and userId', () => {
       // Arrange
       const id = 'uuid-1';
       const dto: UpdateTicketDto = { status: 'DONE' };
@@ -108,7 +108,7 @@ describe('TicketsController', () => {
   });
 
   describe('remove', () => {
-    it('devrait appeler service.remove avec le bon ID et userId', () => {
+    it('should call service.remove with the correct ID and userId', () => {
       // Arrange
       const id = 'uuid-1';
       const expectedResult = { id, title: 'Test' };

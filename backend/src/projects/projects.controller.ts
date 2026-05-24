@@ -1,34 +1,62 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  UsePipes,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { ProjectsService } from './projects.service';
-import { CreateProjectDto } from './dto/create-project.dto';
-import { UpdateProjectDto } from './dto/update-project.dto';
+import {
+  CreateProjectSchema,
+  type CreateProjectDto,
+} from './dto/create-project.dto';
+import * as updateProjectDto from './dto/update-project.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ZodValidationPipe } from '../pipes/zod-validation.pipe';
+import { GetUser } from '../auth/decorators/get-user.decorator';
+import type { ActiveUser } from '../auth/types/active-user.interface';
 
 @Controller('projects')
+@UseGuards(JwtAuthGuard)
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Post()
-  create(@Body() createProjectDto: CreateProjectDto) {
-    return this.projectsService.create(createProjectDto);
+  @UsePipes(new ZodValidationPipe(CreateProjectSchema))
+  create(
+    @Body() createProjectDto: CreateProjectDto,
+    @GetUser() user: ActiveUser,
+  ) {
+    return this.projectsService.create(createProjectDto, user.id);
   }
 
   @Get()
-  findAll() {
-    return this.projectsService.findAll();
+  findAll(@GetUser() user: ActiveUser) {
+    return this.projectsService.findAll(user.id);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.projectsService.findOne(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: ActiveUser) {
+    return this.projectsService.findOne(id, user.id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
-    return this.projectsService.update(+id, updateProjectDto);
+  @UsePipes(new ZodValidationPipe(updateProjectDto.UpdateProjectSchema))
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateProjectDto: updateProjectDto.UpdateProjectDto,
+    @GetUser() user: ActiveUser,
+  ) {
+    return this.projectsService.update(id, user.id, updateProjectDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.projectsService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: ActiveUser) {
+    return this.projectsService.remove(id, user.id);
   }
 }
