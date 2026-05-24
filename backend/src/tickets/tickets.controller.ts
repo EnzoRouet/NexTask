@@ -33,9 +33,9 @@ export class TicketsController {
   constructor(private readonly ticketsService: TicketsService) {}
 
   @Post()
-  @UsePipes(new ZodValidationPipe(CreateTicketSchema))
   create(
-    @Body() createTicketDto: CreateTicketDto,
+    @Body(new ZodValidationPipe(CreateTicketSchema))
+    createTicketDto: CreateTicketDto,
     @GetUser() user: ActiveUser,
   ) {
     return this.ticketsService.create(createTicketDto, user.id);
