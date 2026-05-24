@@ -9,9 +9,13 @@ import {
   UsePipes,
   ParseUUIDPipe,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { TicketsService } from './tickets.service';
 import { ZodValidationPipe } from '../pipes/zod-validation.pipe';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { GetUser } from '../auth/decorators/get-user.decorator';
+import type { ActiveUser } from '../auth/types/active-user.interface';
 
 import {
   CreateTicketSchema,
@@ -24,24 +28,27 @@ import {
 } from './dto/update-ticket.dto';
 
 @Controller('tickets')
+@UseGuards(JwtAuthGuard)
 export class TicketsController {
   constructor(private readonly ticketsService: TicketsService) {}
 
   @Post()
   @UsePipes(new ZodValidationPipe(CreateTicketSchema))
-  create(@Body() createTicketDto: CreateTicketDto) {
-    return this.ticketsService.create(createTicketDto);
+  create(
+    @Body() createTicketDto: CreateTicketDto,
+    @GetUser() user: ActiveUser,
+  ) {
+    return this.ticketsService.create(createTicketDto, user.id);
   }
 
   @Get()
-  findAll(@Query('projectId') projectId: string) {
-    // On reçoit projectId depuis l'URL, et on le donne au Service !
-    return this.ticketsService.findAll(projectId);
+  findAll(@Query('projectId') projectId: string, @GetUser() user: ActiveUser) {
+    return this.ticketsService.findAll(projectId, user.id);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.ticketsService.findOne(id);
+  findOne(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: ActiveUser) {
+    return this.ticketsService.findOne(id, user.id);
   }
 
   @Patch(':id')
@@ -49,12 +56,13 @@ export class TicketsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ZodValidationPipe(UpdateTicketSchema))
     updateTicketDto: UpdateTicketDto,
+    @GetUser() user: ActiveUser,
   ) {
-    return this.ticketsService.update(id, updateTicketDto);
+    return this.ticketsService.update(id, updateTicketDto, user.id);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.ticketsService.remove(id);
+  remove(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: ActiveUser) {
+    return this.ticketsService.remove(id, user.id);
   }
 }

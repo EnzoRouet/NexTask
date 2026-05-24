@@ -1,23 +1,27 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TicketsService } from './tickets.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 
 const mockPrismaService = {
   ticket: {
     findMany: jest.fn(),
-    findUnique: jest.fn(),
+    findFirst: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
+  },
+  project: {
+    findFirst: jest.fn(),
   },
 };
 
 describe('TicketsService', () => {
   let service: TicketsService;
   let prisma: typeof mockPrismaService;
+  const userId = 'user-123';
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -40,7 +44,8 @@ describe('TicketsService', () => {
   });
 
   describe('create', () => {
-    it('devrait créer un nouveau ticket', async () => {
+    it("devrait créer un ticket si l'utilisateur a accès au projet", async () => {
+      // Arrange
       const createDto: CreateTicketDto = {
         title: 'Nouveau ticket',
         projectId: 'projet-123',
@@ -51,49 +56,84 @@ describe('TicketsService', () => {
         status: 'TODO',
         priority: 'MEDIUM',
       };
-
+      prisma.project.findFirst.mockResolvedValue({ id: 'projet-123' });
       prisma.ticket.create.mockResolvedValue(expectedTicket);
 
-      const result = await service.create(createDto);
+      // Act
+      const result = await service.create(createDto, userId);
 
+      // Assert
       expect(result).toEqual(expectedTicket);
       expect(prisma.ticket.create).toHaveBeenCalledWith({ data: createDto });
+    });
+
+    it("devrait lancer ForbiddenException si l'utilisateur n'a pas accès au projet", async () => {
+      // Arrange
+      const createDto: CreateTicketDto = {
+        title: 'T',
+        projectId: 'projet-123',
+      };
+      prisma.project.findFirst.mockResolvedValue(null);
+
+      // Act & Assert (Spécificité : tester une exception regroupe souvent Act et Assert)
+      await expect(service.create(createDto, userId)).rejects.toThrow(
+        ForbiddenException,
+      );
+      expect(prisma.ticket.create).not.toHaveBeenCalled();
     });
   });
 
   describe('findAll', () => {
-    it('devrait retourner la liste des tickets filtrée par projet', async () => {
+    it('devrait retourner la liste des tickets filtrée par projet et droits', async () => {
+      // Arrange
       const projectId = 'projet-123';
       const expectedTickets = [{ id: 'uuid-1', title: 'Test', projectId }];
-
       prisma.ticket.findMany.mockResolvedValue(expectedTickets);
 
-      const result = await service.findAll(projectId);
+      // Act
+      const result = await service.findAll(projectId, userId);
 
+      // Assert
       expect(result).toEqual(expectedTickets);
       expect(prisma.ticket.findMany).toHaveBeenCalledWith({
-        where: { projectId },
+        where: {
+          projectId: projectId,
+          project: {
+            OR: [{ ownerId: userId }, { members: { some: { id: userId } } }],
+          },
+        },
       });
     });
   });
 
   describe('findOne', () => {
-    it("devrait retourner un ticket si l'ID existe", async () => {
+    it("devrait retourner un ticket si l'ID existe et que l'utilisateur a les droits", async () => {
+      // Arrange
       const id = 'uuid-1';
       const expectedTicket = { id, title: 'Test' };
+      prisma.ticket.findFirst.mockResolvedValue(expectedTicket);
 
-      prisma.ticket.findUnique.mockResolvedValue(expectedTicket);
+      // Act
+      const result = await service.findOne(id, userId);
 
-      const result = await service.findOne(id);
-
+      // Assert
       expect(result).toEqual(expectedTicket);
-      expect(prisma.ticket.findUnique).toHaveBeenCalledWith({ where: { id } });
+      expect(prisma.ticket.findFirst).toHaveBeenCalledWith({
+        where: {
+          id: id,
+          project: {
+            OR: [{ ownerId: userId }, { members: { some: { id: userId } } }],
+          },
+        },
+      });
     });
 
-    it("devrait lancer une NotFoundException si le ticket n'existe pas", async () => {
-      prisma.ticket.findUnique.mockResolvedValue(null);
+    it("devrait lancer une NotFoundException si le ticket n'existe pas ou accès refusé", async () => {
+      // Arrange
+      prisma.ticket.findFirst.mockResolvedValue(null);
 
-      await expect(service.findOne('invalide-id')).rejects.toThrow(
+      // Act & Assert
+      await expect(service.findOne('invalide-id', userId)).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -101,17 +141,18 @@ describe('TicketsService', () => {
 
   describe('update', () => {
     it('devrait mettre à jour et retourner le ticket', async () => {
+      // Arrange
       const id = 'uuid-1';
       const updateDto: UpdateTicketDto = { status: 'IN_PROGRESS' };
       const existingTicket = { id, title: 'Test', status: 'TODO' };
       const updatedTicket = { ...existingTicket, ...updateDto };
-
-      // On mock le findUnique (appelé en interne par this.findOne)
-      prisma.ticket.findUnique.mockResolvedValue(existingTicket);
+      prisma.ticket.findFirst.mockResolvedValue(existingTicket);
       prisma.ticket.update.mockResolvedValue(updatedTicket);
 
-      const result = await service.update(id, updateDto);
+      // Act
+      const result = await service.update(id, updateDto, userId);
 
+      // Assert
       expect(result).toEqual(updatedTicket);
       expect(prisma.ticket.update).toHaveBeenCalledWith({
         where: { id },
@@ -122,14 +163,16 @@ describe('TicketsService', () => {
 
   describe('remove', () => {
     it('devrait supprimer le ticket', async () => {
+      // Arrange
       const id = 'uuid-1';
       const existingTicket = { id, title: 'Test' };
-
-      prisma.ticket.findUnique.mockResolvedValue(existingTicket);
+      prisma.ticket.findFirst.mockResolvedValue(existingTicket);
       prisma.ticket.delete.mockResolvedValue(existingTicket);
 
-      const result = await service.remove(id);
+      // Act
+      const result = await service.remove(id, userId);
 
+      // Assert
       expect(result).toEqual(existingTicket);
       expect(prisma.ticket.delete).toHaveBeenCalledWith({ where: { id } });
     });
