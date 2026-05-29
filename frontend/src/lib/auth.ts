@@ -16,17 +16,19 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          // TODO retirer ca du harcoded
-          const response = await fetch(`http://localhost:4000/auth/login`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                email: credentials.email,
+                password: credentials.password,
+              }),
             },
-            body: JSON.stringify({
-              email: credentials.email,
-              password: credentials.password,
-            }),
-          });
+          );
 
           if (!response.ok) {
             throw new Error("Erreur lors du fetch d'obtention de l'api");

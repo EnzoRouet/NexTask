@@ -17,19 +17,21 @@ export default function RegisterPage() {
     setError("");
     setIsLoading(true);
 
-    // TODO : Retirer l'url hardcoder de merde pour les tests
     try {
-      const response = await fetch(`http://localhost:4000/auth/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: name,
+            email: email,
+            password: password,
+          }),
         },
-        body: JSON.stringify({
-          name: name,
-          email: email,
-          password: password,
-        }),
-      });
+      );
 
       if (!response.ok) {
         throw new Error(`Erreur lors de l'inscription : ${response.status}`);
@@ -52,7 +54,7 @@ export default function RegisterPage() {
         className="bg-white p-8 rounded-lg shadow-md w-96"
       >
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-          Inscription OmniTrack
+          Inscription NexTask
         </h2>
 
         {error && (
