@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import Link from "next/link";
 import LogoutButton from "@/components/LogoutButton";
 import { apiFetch } from "@/lib/api";
+import { NewProjectButton } from "@/components/NewProjectButton";
 
 interface Project {
   id: string;
@@ -45,7 +46,10 @@ export default async function HomePage() {
             <LogoutButton />
           </div>
 
-          <h2 className="text-2xl font-semibold mb-6">Vos Projets</h2>
+          <div>
+            <h2 className="text-2xl font-semibold mb-6">Vos Projets</h2>
+            <NewProjectButton token={session.access_token ?? ""} />
+          </div>
 
           {projects.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

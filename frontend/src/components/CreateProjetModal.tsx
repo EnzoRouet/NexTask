@@ -7,7 +7,7 @@ import {
   CreateProjectDto,
   CreateProjectSchema,
 } from "@/lib/validations/project";
-import { Project } from "next/dist/build/swc/types";
+import { Project } from "@/types/projects";
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -16,7 +16,7 @@ interface CreateProjectModalProps {
   token: string;
 }
 
-export function CreateTicketModal({
+export function CreateProjectModal({
   isOpen,
   onClose,
   name,
@@ -88,7 +88,7 @@ export function CreateTicketModal({
             <input
               id="title"
               type="text"
-              placeholder="Ex: Configurer la base Prisma"
+              placeholder="Ex: Refonte du site vitrine"
               {...register("name")}
               className={`w-full h-10 px-3 rounded-lg border text-sm outline-none transition-all ${
                 errors.name
@@ -124,7 +124,7 @@ export function CreateTicketModal({
                   Création...
                 </>
               ) : (
-                "Créer le ticket"
+                "Créer le projet"
               )}
             </button>
           </div>

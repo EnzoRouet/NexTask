@@ -5,6 +5,7 @@ export const CreateProjectSchema = z.object({
   description: z
     .string()
     .min(3, "La description du projet est trop courte")
+    .or(z.literal(""))
     .optional(),
 });
 

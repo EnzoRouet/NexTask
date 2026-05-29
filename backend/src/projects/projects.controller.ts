@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  UsePipes,
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
@@ -15,7 +14,10 @@ import {
   CreateProjectSchema,
   type CreateProjectDto,
 } from './dto/create-project.dto';
-import * as updateProjectDto from './dto/update-project.dto';
+import {
+  UpdateProjectSchema,
+  type UpdateProjectDto,
+} from './dto/update-project.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ZodValidationPipe } from '../pipes/zod-validation.pipe';
 import { GetUser } from '../auth/decorators/get-user.decorator';
@@ -27,9 +29,9 @@ export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Post()
-  @UsePipes(new ZodValidationPipe(CreateProjectSchema))
   create(
-    @Body() createProjectDto: CreateProjectDto,
+    @Body(new ZodValidationPipe(CreateProjectSchema))
+    createProjectDto: CreateProjectDto,
     @GetUser() user: ActiveUser,
   ) {
     return this.projectsService.create(createProjectDto, user.id);
@@ -46,10 +48,10 @@ export class ProjectsController {
   }
 
   @Patch(':id')
-  @UsePipes(new ZodValidationPipe(updateProjectDto.UpdateProjectSchema))
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateProjectDto: updateProjectDto.UpdateProjectDto,
+    @Body(new ZodValidationPipe(UpdateProjectSchema))
+    updateProjectDto: UpdateProjectDto,
     @GetUser() user: ActiveUser,
   ) {
     return this.projectsService.update(id, user.id, updateProjectDto);
