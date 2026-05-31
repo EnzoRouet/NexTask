@@ -68,15 +68,26 @@ export default function KanbanBoard({
       </button>
       <div className="flex gap-6">
         <DndContext onDragEnd={handleDragEnd} id="kanban-board">
-          <KanbanColumn title="TODO" status="TODO" tickets={tickets} />
+          <KanbanColumn
+            title="TODO"
+            status="TODO"
+            tickets={tickets}
+            token={token}
+          />
 
           <KanbanColumn
             title="IN_PROGRESS"
             status="IN_PROGRESS"
             tickets={tickets}
+            token={token}
           />
 
-          <KanbanColumn title="DONE" status="DONE" tickets={tickets} />
+          <KanbanColumn
+            title="DONE"
+            status="DONE"
+            tickets={tickets}
+            token={token}
+          />
         </DndContext>
       </div>
       <CreateTicketModal

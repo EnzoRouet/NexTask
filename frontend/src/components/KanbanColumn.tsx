@@ -8,12 +8,14 @@ interface KanbanColumnProps {
   title: string;
   status: "TODO" | "IN_PROGRESS" | "DONE";
   tickets: Ticket[];
+  token: string;
 }
 
 export default function KanbanColumn({
   title,
   status,
   tickets,
+  token,
 }: Readonly<KanbanColumnProps>) {
   const { setNodeRef } = useDroppable({
     id: status,
@@ -29,7 +31,7 @@ export default function KanbanColumn({
         {tickets
           .filter((ticket) => ticket.status === status)
           .map((ticket) => (
-            <TicketCard key={ticket.id} ticket={ticket} />
+            <TicketCard key={ticket.id} ticket={ticket} token={token} />
           ))}
       </ul>
     </>
