@@ -12,7 +12,17 @@ export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
   async create(createProjectDto: CreateProjectDto, userId: string) {
     return await this.prisma.project.create({
-      data: { ...createProjectDto, ownerId: userId },
+      data: {
+        ...createProjectDto,
+        ownerId: userId,
+        columns: {
+          create: [
+            { name: 'TODO', position: 1000 },
+            { name: 'IN_PROGRESS', position: 2000 },
+            { name: 'DONE', position: 3000 },
+          ],
+        },
+      },
     });
   }
 
@@ -48,6 +58,16 @@ export class ProjectsService {
             },
           },
         ],
+      },
+      include: {
+        columns: {
+          orderBy: { position: 'asc' },
+          include: {
+            tickets: {
+              orderBy: { position: 'asc' },
+            },
+          },
+        },
       },
     });
     if (!response) throw new NotFoundException("Ce projet n'existe pas");

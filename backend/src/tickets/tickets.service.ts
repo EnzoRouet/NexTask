@@ -25,8 +25,19 @@ export class TicketsService {
       );
     }
 
+    const lastTicket = await this.prisma.ticket.findFirst({
+      where: {
+        columnId: createTicketDto.columnId,
+      },
+      orderBy: {
+        position: 'desc',
+      },
+    });
+
+    const newPosition = lastTicket ? lastTicket.position + 1000 : 1000;
+
     return await this.prisma.ticket.create({
-      data: createTicketDto,
+      data: { ...createTicketDto, position: newPosition },
     });
   }
 

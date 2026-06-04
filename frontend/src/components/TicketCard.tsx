@@ -1,7 +1,7 @@
 "use client";
 
 import { Ticket } from "@/types/tickets";
-import { useDraggable } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { apiFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
@@ -17,12 +17,22 @@ export function TicketCard({ ticket, token }: Readonly<TicketCardProps>) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: ticket.id,
   });
 
   const style = {
-    transform: CSS.Translate.toString(transform),
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 50 : "auto",
   };
 
   const handleDelete = async (e: React.MouseEvent) => {
@@ -50,18 +60,22 @@ export function TicketCard({ ticket, token }: Readonly<TicketCardProps>) {
       style={style}
       {...listeners}
       {...attributes}
-      className="bg-white p-3 mb-2 shadow rounded text-black cursor-grab active:cursor-grabbing flex justify-between items-center group"
+      className="bg-white p-3 mb-2 shadow-sm border border-neutral-200 rounded-lg text-neutral-800 cursor-grab active:cursor-grabbing flex justify-between items-center group transition-colors hover:border-neutral-300 relative"
     >
-      <span>{ticket.title}</span>
+      <span className="font-medium text-sm pr-6">{ticket.title}</span>
 
       <button
         onClick={handleDelete}
         onPointerDown={(e) => e.stopPropagation()}
         disabled={isDeleting}
-        className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50 text-sm font-bold px-2"
+        className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50 absolute right-2 p-1.5 rounded-md hover:bg-red-50 flex items-center justify-center"
         title="Supprimer le ticket"
       >
-        {isDeleting ? "" : "X"}
+        {isDeleting ? (
+          <Loader2 className="w-4 h-4 animate-spin text-red-500" />
+        ) : (
+          <Trash2 className="w-4 h-4" />
+        )}
       </button>
     </li>
   );

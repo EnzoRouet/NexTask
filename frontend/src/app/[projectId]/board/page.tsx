@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import KanbanBoard from "@/components/KanbanBoard";
 import { apiFetch } from "@/lib/api";
-import { Ticket } from "@/types/tickets";
+import { Project } from "@/types/projects";
 
 interface BoardPageProps {
   params: Promise<{
@@ -20,8 +20,8 @@ export default async function BoardPage({ params }: Readonly<BoardPageProps>) {
 
   const { projectId } = await params;
 
-  const tickets = await apiFetch<Ticket[]>(
-    `/tickets?projectId=${projectId}`,
+  const project = await apiFetch<Project>(
+    `/projects/${projectId}`,
     { method: "GET" },
     session.access_token,
   );
@@ -36,11 +36,7 @@ export default async function BoardPage({ params }: Readonly<BoardPageProps>) {
       </div>
 
       <div className="p-4 text-yellow-800 rounded">
-        <KanbanBoard
-          initialTickets={tickets}
-          token={session.access_token}
-          projectId={projectId}
-        />
+        <KanbanBoard project={project} token={session.access_token} />
       </div>
     </div>
   );

@@ -14,6 +14,7 @@ interface CreateTicketModalProps {
   onClose: () => void;
   projectId: string;
   token: string;
+  columnId: string;
 }
 
 export function CreateTicketModal({
@@ -21,6 +22,7 @@ export function CreateTicketModal({
   onClose,
   projectId,
   token,
+  columnId,
 }: Readonly<CreateTicketModalProps>) {
   const {
     register,
@@ -32,6 +34,7 @@ export function CreateTicketModal({
     defaultValues: {
       title: "",
       projectId: projectId,
+      columnId: columnId,
     },
   });
 
@@ -41,7 +44,7 @@ export function CreateTicketModal({
     try {
       await apiFetch<Ticket>(
         "/tickets",
-        { method: "POST", body: JSON.stringify(data) },
+        { method: "POST", body: JSON.stringify({ ...data, columnId }) },
         token,
       );
 

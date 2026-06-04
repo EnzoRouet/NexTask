@@ -1,38 +1,35 @@
 "use client";
 
-import { Ticket } from "@/types/tickets";
 import { useDroppable } from "@dnd-kit/core";
 import { TicketCard } from "./TicketCard";
+import { BoardColumn } from "@/types/boardColumn";
+import { SortableContext } from "@dnd-kit/sortable";
 
 interface KanbanColumnProps {
-  title: string;
-  status: "TODO" | "IN_PROGRESS" | "DONE";
-  tickets: Ticket[];
+  column: BoardColumn;
   token: string;
 }
 
 export default function KanbanColumn({
-  title,
-  status,
-  tickets,
+  column,
   token,
 }: Readonly<KanbanColumnProps>) {
   const { setNodeRef } = useDroppable({
-    id: status,
+    id: column.id,
   });
 
   return (
     <>
-      <h2>{title}</h2>
+      <h2>{column.name}</h2>
       <ul
         className="bg-gray-200 p-4 rounded-lg w-1/3 min-h-75"
         ref={setNodeRef}
       >
-        {tickets
-          .filter((ticket) => ticket.status === status)
-          .map((ticket) => (
+        <SortableContext items={column.tickets.map((t) => t.id)}>
+          {column.tickets.map((ticket) => (
             <TicketCard key={ticket.id} ticket={ticket} token={token} />
           ))}
+        </SortableContext>
       </ul>
     </>
   );
