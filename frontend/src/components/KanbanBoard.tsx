@@ -7,6 +7,7 @@ import KanbanColumn from "./KanbanColumn";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { apiFetch } from "@/lib/api";
 import { CreateTicketModal } from "./CreateTicketModal";
+import { CreateColumnModal } from "./CreateColumnModal";
 import { Ticket } from "@/types/tickets";
 
 export default function KanbanBoard({
@@ -18,6 +19,7 @@ export default function KanbanBoard({
 }>) {
   const [columns, setColumns] = useState<BoardColumn[]>(project.columns);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCreateColumnModalOpen, setIsCreateColumnModalOpen] = useState(false);
   const [prevProject, setPrevProject] = useState<Project>(project);
 
   if (project !== prevProject) {
@@ -131,6 +133,8 @@ export default function KanbanBoard({
     }
   };
 
+  const handleAddColumn = async () => {};
+
   return (
     <>
       <button
@@ -138,6 +142,13 @@ export default function KanbanBoard({
         className="bg-blue-600 text-white px-4 py-2 rounded-lg mb-6 shadow-sm hover:bg-blue-700 transition-colors"
       >
         + Nouveau Ticket
+      </button>
+
+      <button
+        onClick={() => setIsCreateColumnModalOpen(true)}
+        className="bg-neutral-800 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-neutral-900 transition-colors"
+      >
+        + Nouvelle Colonne
       </button>
 
       <div className="flex gap-6 overflow-x-auto pb-4">
@@ -154,6 +165,16 @@ export default function KanbanBoard({
         projectId={project.id}
         token={token}
         columnId={project.columns[0]?.id || ""}
+      />
+
+      <CreateColumnModal
+        isOpen={isCreateColumnModalOpen}
+        onClose={() => setIsCreateColumnModalOpen(false)}
+        projectId={project.id}
+        token={token}
+        onSuccess={(newColumn) => {
+          setColumns([...columns, { ...newColumn, tickets: [] }]);
+        }}
       />
     </>
   );
