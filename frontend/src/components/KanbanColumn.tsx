@@ -7,15 +7,18 @@ import { SortableContext } from "@dnd-kit/sortable";
 import { apiFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
+import { User } from "./KanbanBoard";
 
 interface KanbanColumnProps {
   column: BoardColumn;
   token: string;
+  user: User;
 }
 
 export default function KanbanColumn({
   column,
   token,
+  user,
 }: Readonly<KanbanColumnProps>) {
   const router = useRouter();
 
@@ -59,7 +62,12 @@ export default function KanbanColumn({
       >
         <SortableContext items={column.tickets.map((t) => t.id)}>
           {column.tickets.map((ticket) => (
-            <TicketCard key={ticket.id} ticket={ticket} token={token} />
+            <TicketCard
+              key={ticket.id}
+              ticket={ticket}
+              token={token}
+              currentUser={user}
+            />
           ))}
         </SortableContext>
       </ul>

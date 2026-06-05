@@ -36,7 +36,11 @@ export default async function BoardPage({ params }: Readonly<BoardPageProps>) {
       </div>
 
       <div className="p-4 text-yellow-800 rounded">
-        <KanbanBoard project={project} token={session.access_token} />
+        <KanbanBoard
+          project={project}
+          token={session.access_token}
+          user={session.user}
+        />
       </div>
     </div>
   );

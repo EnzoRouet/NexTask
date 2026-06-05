@@ -10,12 +10,19 @@ import { CreateTicketModal } from "./CreateTicketModal";
 import { CreateColumnModal } from "./CreateColumnModal";
 import { Ticket } from "@/types/tickets";
 
+export interface User {
+  id: string;
+  role: "USER" | "ADMIN";
+}
+
 export default function KanbanBoard({
   project,
   token,
+  user,
 }: Readonly<{
   project: Project;
   token: string;
+  user: User;
 }>) {
   const [columns, setColumns] = useState<BoardColumn[]>(project.columns);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -133,8 +140,6 @@ export default function KanbanBoard({
     }
   };
 
-  const handleAddColumn = async () => {};
-
   return (
     <>
       <button
@@ -154,7 +159,12 @@ export default function KanbanBoard({
       <div className="flex gap-6 overflow-x-auto pb-4">
         <DndContext onDragEnd={handleDragEnd} id="kanban-board">
           {columns.map((column) => (
-            <KanbanColumn key={column.id} column={column} token={token} />
+            <KanbanColumn
+              key={column.id}
+              column={column}
+              token={token}
+              user={user}
+            />
           ))}
         </DndContext>
       </div>

@@ -11,11 +11,31 @@ import { PrismaService } from '../prisma/prisma.service';
 export class TicketsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private async getTicketAndCheckRights(id: string, userId: string) {
+    const ticket = await this.findOne(id, userId);
+
+    const isOwner = ticket.project.ownerId === userId;
+    const isPO = ticket.project.members[0]?.role === 'PO';
+
+    if (isOwner || isPO) {
+      return ticket;
+    }
+
+    if (
+      ticket.column.isLocked ||
+      (ticket.assigneeId && ticket.assigneeId !== userId)
+    ) {
+      throw new ForbiddenException('Action non autorisée sur ce ticket.');
+    }
+
+    return ticket;
+  }
+
   async create(createTicketDto: CreateTicketDto, userId: string) {
     const project = await this.prisma.project.findFirst({
       where: {
         id: createTicketDto.projectId,
-        OR: [{ ownerId: userId }, { members: { some: { id: userId } } }],
+        OR: [{ ownerId: userId }, { members: { some: { userId: userId } } }],
       },
     });
 
@@ -46,7 +66,7 @@ export class TicketsService {
       where: {
         projectId: projectId,
         project: {
-          OR: [{ ownerId: userId }, { members: { some: { id: userId } } }],
+          OR: [{ ownerId: userId }, { members: { some: { userId: userId } } }],
         },
       },
     });
@@ -57,7 +77,17 @@ export class TicketsService {
       where: {
         id: id,
         project: {
-          OR: [{ ownerId: userId }, { members: { some: { id: userId } } }],
+          OR: [{ ownerId: userId }, { members: { some: { userId: userId } } }],
+        },
+      },
+      include: {
+        column: true,
+        project: {
+          include: {
+            members: {
+              where: { userId: userId },
+            },
+          },
         },
       },
     });
@@ -72,7 +102,7 @@ export class TicketsService {
   }
 
   async update(id: string, updateTicketDto: UpdateTicketDto, userId: string) {
-    await this.findOne(id, userId);
+    await this.getTicketAndCheckRights(id, userId);
 
     return await this.prisma.ticket.update({
       where: { id: id },
@@ -81,7 +111,7 @@ export class TicketsService {
   }
 
   async remove(id: string, userId: string) {
-    await this.findOne(id, userId);
+    await this.getTicketAndCheckRights(id, userId);
 
     return await this.prisma.ticket.delete({
       where: { id: id },

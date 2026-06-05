@@ -8,4 +8,8 @@ export interface Ticket {
   projectId: string;
   columnId: string;
   position: number;
+  assigneeId: string | null;
+  column: {
+    isLocked: boolean;
+  };
 }
