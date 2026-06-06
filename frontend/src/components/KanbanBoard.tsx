@@ -8,6 +8,7 @@ import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { apiFetch } from "@/lib/api";
 import { CreateTicketModal } from "./CreateTicketModal";
 import { CreateColumnModal } from "./CreateColumnModal";
+import { InviteMemberModal } from "./InviteMemberModal";
 import { Ticket } from "@/types/tickets";
 
 export interface User {
@@ -27,6 +28,7 @@ export default function KanbanBoard({
   const [columns, setColumns] = useState<BoardColumn[]>(project.columns);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreateColumnModalOpen, setIsCreateColumnModalOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [prevProject, setPrevProject] = useState<Project>(project);
 
   if (project !== prevProject) {
@@ -142,19 +144,28 @@ export default function KanbanBoard({
 
   return (
     <>
-      <button
-        onClick={() => setIsCreateModalOpen(true)}
-        className="bg-blue-600 text-white px-4 py-2 rounded-lg mb-6 shadow-sm hover:bg-blue-700 transition-colors"
-      >
-        + Nouveau Ticket
-      </button>
+      <div className="flex gap-4 mb-6 flex-wrap">
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-700 transition-colors"
+        >
+          + Nouveau Ticket
+        </button>
 
-      <button
-        onClick={() => setIsCreateColumnModalOpen(true)}
-        className="bg-neutral-800 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-neutral-900 transition-colors"
-      >
-        + Nouvelle Colonne
-      </button>
+        <button
+          onClick={() => setIsCreateColumnModalOpen(true)}
+          className="bg-neutral-800 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-neutral-900 transition-colors"
+        >
+          + Nouvelle Colonne
+        </button>
+
+        <button
+          onClick={() => setIsInviteModalOpen(true)}
+          className="bg-emerald-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-emerald-700 transition-colors"
+        >
+          + Inviter un membre
+        </button>
+      </div>
 
       <div className="flex gap-6 overflow-x-auto pb-4">
         <DndContext onDragEnd={handleDragEnd} id="kanban-board">
@@ -185,6 +196,13 @@ export default function KanbanBoard({
         onSuccess={(newColumn) => {
           setColumns([...columns, { ...newColumn, tickets: [] }]);
         }}
+      />
+
+      <InviteMemberModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        projectId={project.id}
+        token={token}
       />
     </>
   );
