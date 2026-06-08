@@ -4,12 +4,19 @@ import { Project } from "@/types/projects";
 import { BoardColumn } from "@/types/boardColumn";
 import { useState } from "react";
 import KanbanColumn from "./KanbanColumn";
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import {
+  DndContext,
+  DragEndEvent,
+  useSensor,
+  useSensors,
+  PointerSensor,
+} from "@dnd-kit/core";
 import { apiFetch } from "@/lib/api";
 import { CreateTicketModal } from "./CreateTicketModal";
 import { CreateColumnModal } from "./CreateColumnModal";
 import { InviteMemberModal } from "./InviteMemberModal";
 import { Ticket } from "@/types/tickets";
+import { TicketDetailsModal } from "./TicketDetailsModal";
 
 export interface User {
   id: string;
@@ -25,11 +32,19 @@ export default function KanbanBoard({
   token: string;
   user: User;
 }>) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+  );
   const [columns, setColumns] = useState<BoardColumn[]>(project.columns);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreateColumnModalOpen, setIsCreateColumnModalOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [prevProject, setPrevProject] = useState<Project>(project);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
   if (project !== prevProject) {
     setPrevProject(project);
@@ -168,13 +183,18 @@ export default function KanbanBoard({
       </div>
 
       <div className="flex gap-6 overflow-x-auto pb-4">
-        <DndContext onDragEnd={handleDragEnd} id="kanban-board">
+        <DndContext
+          sensors={sensors}
+          onDragEnd={handleDragEnd}
+          id="kanban-board"
+        >
           {columns.map((column) => (
             <KanbanColumn
               key={column.id}
               column={column}
               token={token}
               user={user}
+              onTicketClick={setSelectedTicket}
             />
           ))}
         </DndContext>
@@ -202,6 +222,13 @@ export default function KanbanBoard({
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
         projectId={project.id}
+        token={token}
+      />
+
+      <TicketDetailsModal
+        isOpen={!!selectedTicket}
+        onClose={() => setSelectedTicket(null)}
+        ticket={selectedTicket}
         token={token}
       />
     </>

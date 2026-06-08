@@ -5,6 +5,7 @@ import {
   Param,
   ParseUUIDPipe,
   UseGuards,
+  Get,
 } from '@nestjs/common';
 import { ProjectMembersService } from './project-members.service';
 import {
@@ -33,5 +34,11 @@ export class ProjectMembersController {
       createProjectMemberDto,
       user.id,
     );
+  }
+
+  @Get(':projectId/members')
+  @UseGuards(JwtAuthGuard)
+  findAll(@Param('projectId', ParseUUIDPipe) projectId: string) {
+    return this.projectMembersService.findAll(projectId);
   }
 }

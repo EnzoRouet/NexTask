@@ -66,4 +66,38 @@ export class ProjectMembersService {
       },
     });
   }
+
+  async findAll(projectId: string) {
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      include: {
+        owner: {
+          select: { id: true, name: true },
+        },
+      },
+    });
+
+    if (!project) {
+      throw new NotFoundException('Projet introuvable');
+    }
+
+    const members = await this.prisma.projectMember.findMany({
+      where: { projectId: projectId },
+      include: {
+        user: {
+          select: { id: true, name: true },
+        },
+      },
+    });
+
+    const ownerAsMember = {
+      id: `owner-${project.owner.id}`,
+      user: {
+        id: project.owner.id,
+        name: `${project.owner.name} (Créateur)`,
+      },
+    };
+
+    return [ownerAsMember, ...members];
+  }
 }

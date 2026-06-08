@@ -12,4 +12,8 @@ export interface Ticket {
   column: {
     isLocked: boolean;
   };
+  assignee?: {
+    id: string;
+    name: string;
+  };
 }

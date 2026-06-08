@@ -25,6 +25,10 @@ import {
   UpdateTicketSchema,
   type UpdateTicketDto,
 } from './dto/update-ticket.dto';
+import {
+  type AssignTicketDto,
+  AssignTicketSchema,
+} from './dto/assign-ticket.dto';
 
 @Controller('tickets')
 @UseGuards(JwtAuthGuard)
@@ -58,6 +62,20 @@ export class TicketsController {
     @GetUser() user: ActiveUser,
   ) {
     return this.ticketsService.update(id, updateTicketDto, user.id);
+  }
+
+  @Patch(':id/assign')
+  assign(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body(new ZodValidationPipe(AssignTicketSchema))
+    assignTicketDto: AssignTicketDto,
+    @GetUser() user: ActiveUser,
+  ) {
+    return this.ticketsService.assign(
+      id,
+      assignTicketDto.targetUserId,
+      user.id,
+    );
   }
 
   @Delete(':id')

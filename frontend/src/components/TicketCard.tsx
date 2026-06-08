@@ -6,21 +6,24 @@ import { CSS } from "@dnd-kit/utilities";
 import { apiFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Trash2, Loader2, Lock } from "lucide-react";
+import { Trash2, Loader2, Lock, UserPlus } from "lucide-react";
 
 interface TicketCardProps {
   ticket: Ticket;
   token: string;
   currentUser: { id: string; role: string };
+  onTicketClick: (ticket: Ticket) => void;
 }
 
 export function TicketCard({
   ticket,
   token,
   currentUser,
+  onTicketClick,
 }: Readonly<TicketCardProps>) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isAssigning, setIsAssigning] = useState(false);
 
   const canEdit =
     currentUser.role === "ADMIN" ||
@@ -67,8 +70,30 @@ export function TicketCard({
     }
   };
 
+  const handleAssign = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsAssigning(true);
+
+    try {
+      await apiFetch(
+        `/tickets/${ticket.id}/assign`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ targetUserId: currentUser.id }),
+        },
+        token,
+      );
+      router.refresh();
+    } catch (error) {
+      console.error("Erreur système :", error);
+      alert("Impossible de s'assigner le ticket.");
+      setIsAssigning(false);
+    }
+  };
+
   return (
     <li
+      onClick={() => onTicketClick(ticket)}
       ref={setNodeRef}
       style={style}
       {...listeners}
@@ -79,16 +104,32 @@ export function TicketCard({
           : "border-neutral-100 bg-neutral-50 opacity-75 cursor-not-allowed"
       }`}
     >
-      <div className="flex flex-col gap-1">
-        <span className="font-medium text-sm pr-6 flex items-center gap-2">
-          {!canEdit && <Lock className="w-3 h-3 text-neutral-400" />}{" "}
+      <div className="flex flex-col gap-1 w-full pr-8">
+        <span className="font-medium text-sm flex items-center gap-2">
+          {!canEdit && <Lock className="w-3 h-3 text-neutral-400" />}
           {ticket.title}
         </span>
 
-        {ticket.assigneeId && (
+        {ticket.assigneeId ? (
           <span className="text-[10px] uppercase font-bold text-neutral-400">
-            {ticket.assigneeId === currentUser.id ? "Ta tâche" : "Assigné"}
+            {ticket.assigneeId === currentUser.id
+              ? "Ta tâche"
+              : ticket.assignee?.name || "Assigné"}
           </span>
+        ) : (
+          <button
+            onClick={handleAssign}
+            onPointerDown={(e) => e.stopPropagation()}
+            disabled={isAssigning}
+            className="text-[10px] uppercase font-bold text-blue-500 hover:text-blue-700 w-fit flex items-center gap-1 transition-colors disabled:opacity-50"
+          >
+            {isAssigning ? (
+              <Loader2 className="w-3 h-3 animate-spin" />
+            ) : (
+              <UserPlus className="w-3 h-3" />
+            )}
+            S&apos;assigner
+          </button>
         )}
       </div>
 

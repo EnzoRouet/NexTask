@@ -8,17 +8,20 @@ import { apiFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { User } from "./KanbanBoard";
+import { Ticket } from "@/types/tickets";
 
 interface KanbanColumnProps {
   column: BoardColumn;
   token: string;
   user: User;
+  onTicketClick: (ticket: Ticket) => void;
 }
 
 export default function KanbanColumn({
   column,
   token,
   user,
+  onTicketClick,
 }: Readonly<KanbanColumnProps>) {
   const router = useRouter();
 
@@ -67,6 +70,7 @@ export default function KanbanColumn({
               ticket={ticket}
               token={token}
               currentUser={user}
+              onTicketClick={onTicketClick}
             />
           ))}
         </SortableContext>
