@@ -41,7 +41,7 @@ describe('ProjectsService', () => {
   });
 
   describe('create', () => {
-    it('should create a project and assign the userId as ownerId', async () => {
+    it('should create a project with default columns and assign the userId as ownerId', async () => {
       // Arrange
       const createDto: CreateProjectDto = { name: 'New Project' };
       const expectedProject = { id: 'uuid-1', ...createDto, ownerId: userId };
@@ -53,7 +53,17 @@ describe('ProjectsService', () => {
       // Assert
       expect(result).toEqual(expectedProject);
       expect(prisma.project.create).toHaveBeenCalledWith({
-        data: { ...createDto, ownerId: userId },
+        data: {
+          ...createDto,
+          ownerId: userId,
+          columns: {
+            create: [
+              { name: 'TODO', position: 1000 },
+              { name: 'IN_PROGRESS', position: 2000 },
+              { name: 'DONE', position: 3000 },
+            ],
+          },
+        },
       });
     });
   });
@@ -71,14 +81,14 @@ describe('ProjectsService', () => {
       expect(result).toEqual(expectedProjects);
       expect(prisma.project.findMany).toHaveBeenCalledWith({
         where: {
-          OR: [{ ownerId: userId }, { members: { some: { id: userId } } }],
+          OR: [{ ownerId: userId }, { members: { some: { userId: userId } } }],
         },
       });
     });
   });
 
   describe('findOne', () => {
-    it('should return a project if the ID exists and the user has access', async () => {
+    it('should return a project with its columns and tickets if the user has access', async () => {
       // Arrange
       const id = 'uuid-1';
       const expectedProject = { id, name: 'Test' };
@@ -92,7 +102,17 @@ describe('ProjectsService', () => {
       expect(prisma.project.findFirst).toHaveBeenCalledWith({
         where: {
           id: id,
-          OR: [{ ownerId: userId }, { members: { some: { id: userId } } }],
+          OR: [{ ownerId: userId }, { members: { some: { userId: userId } } }],
+        },
+        include: {
+          columns: {
+            include: {
+              tickets: {
+                orderBy: { position: 'asc' },
+              },
+            },
+            orderBy: { position: 'asc' },
+          },
         },
       });
     });
