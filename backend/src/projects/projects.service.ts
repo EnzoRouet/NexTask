@@ -34,7 +34,7 @@ export class ProjectsService {
           {
             members: {
               some: {
-                id: userId,
+                userId: userId,
               },
             },
           },
@@ -53,7 +53,7 @@ export class ProjectsService {
           {
             members: {
               some: {
-                id: userId,
+                userId: userId,
               },
             },
           },
