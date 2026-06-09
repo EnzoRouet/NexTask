@@ -18,6 +18,9 @@ import { InviteMemberModal } from "./InviteMemberModal";
 import { Ticket } from "@/types/tickets";
 import { TicketDetailsModal } from "./TicketDetailsModal";
 
+const TICKET_STEP = 1000;
+const STEP_DIVISE = 2;
+
 export interface User {
   id: string;
   role: "USER" | "ADMIN";
@@ -123,16 +126,16 @@ export default function KanbanBoard({
 
     if (!prevTicket && !nextTicket) {
       // Si colonne vide alors index 1000
-      newPosition = 1000;
+      newPosition = TICKET_STEP;
     } else if (!prevTicket) {
       // Si le ticket est laché en haut de la colonne on prend l'index du suivant et on le divise par 2
-      newPosition = nextTicket.position / 2;
+      newPosition = nextTicket.position / STEP_DIVISE;
     } else if (!nextTicket) {
       // S'il est laché en bas d'une colonne on fait simplement +1000 par rapport au dernier des tickets
-      newPosition = prevTicket.position + 1000;
+      newPosition = prevTicket.position + TICKET_STEP;
     } else {
       // S'il est pris entre deux ticket on fait une moyenne de la position des deux
-      newPosition = (prevTicket.position + nextTicket.position) / 2;
+      newPosition = (prevTicket.position + nextTicket.position) / STEP_DIVISE;
     }
 
     ticketToMove.position = newPosition;

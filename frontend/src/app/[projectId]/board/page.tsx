@@ -17,7 +17,6 @@ export default async function BoardPage({ params }: Readonly<BoardPageProps>) {
   if (!session?.access_token) {
     redirect("/login");
   }
-  console.log(session.access_token);
 
   const { projectId } = await params;
 

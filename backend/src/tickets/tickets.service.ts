@@ -31,29 +31,35 @@ export class TicketsService {
     return ticket;
   }
 
-  async assign(ticketId: string, targetUserId: string, requesterId: string) {
+  async assign(
+    ticketId: string,
+    targetUserId: string | null,
+    requesterId: string,
+  ) {
     const ticket = await this.getTicketAndCheckRights(ticketId, requesterId);
 
-    const targetUser = await this.prisma.projectMember.findFirst({
-      where: { projectId: ticket.projectId, userId: targetUserId },
-    });
+    if (targetUserId) {
+      const targetUser = await this.prisma.projectMember.findFirst({
+        where: { projectId: ticket.projectId, userId: targetUserId },
+      });
 
-    const isTargetOwner = ticket.project.ownerId === targetUserId;
+      const isTargetOwner = ticket.project.ownerId === targetUserId;
 
-    if (!targetUser && !isTargetOwner) {
-      throw new NotFoundException(
-        'Cet utilisateur ne fait pas partie du projet',
-      );
-    }
-
-    const isOwner = ticket.project.ownerId === requesterId;
-    const isPO = ticket.project.members[0]?.role === 'PO';
-
-    if (!isOwner && !isPO) {
-      if (requesterId !== targetUserId) {
-        throw new ForbiddenException(
-          "Les développeurs ne peuvent s'assigner que leurs tickets",
+      if (!targetUser && !isTargetOwner) {
+        throw new NotFoundException(
+          'Cet utilisateur ne fait pas partie du projet',
         );
+      }
+
+      const isOwner = ticket.project.ownerId === requesterId;
+      const isPO = ticket.project.members[0]?.role === 'PO';
+
+      if (!isOwner && !isPO) {
+        if (requesterId !== targetUserId) {
+          throw new ForbiddenException(
+            "Les développeurs ne peuvent s'assigner que leurs tickets",
+          );
+        }
       }
     }
 
