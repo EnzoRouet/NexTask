@@ -37,18 +37,18 @@ Il s'agissait d'assimiler une stack technique totalement nouvelle (Next.js, Nest
 
 ### 1. Complexité Algorithmique
 
-**Le problème :** L'algorithme de Drag & Drop centralisait la gestion de l'interface React, les appels API et les calculs mathématiques d'insertion de tickets (moyennes de positionnement). Cela générait un composant monolithique avec une complexité cognitive très élevée et des risques de rendus en cascade (cascading renders).
-**La solution :** Extraction totale de la logique métier dans des Custom Hooks et découpage en fonctions mathématiques pures. Cette refactorisation a permis d'isoler l'état local du cycle de vie global, rendant le composant purement visuel et garantissant l'exactitude des calculs de positionnement avec une stricte validation des types (Type Narrowing).
+**Le problème :** L'algorithme de Drag & Drop centralisait la gestion de l'interface React, les appels API et les calculs mathématiques d'insertion de tickets (moyennes de positionnement). Cela générait un composant monolithique avec une complexité cognitive très élevée et des risques de rendus en cascade.
+**La solution :** Extraction totale de la logique métier dans des Custom Hooks et découpage en fonctions mathématiques pures. Cette refactorisation a permis d'isoler l'état local du cycle de vie global, rendant le composant purement visuel et garantissant l'exactitude des calculs de positionnement avec une stricte validation des types.
 
 ### 2. Sécurisation des Flux de Données et Intégrité
 
-**Le problème :** Passer d'un environnement purement front-end à une architecture Fullstack expose l'application aux failles classiques (accès non autorisés, manipulation de payload).
+**Le problème :** Passer d'un environnement purement front-end à une architecture Fullstack expose l'application aux failles classiques.
 **La solution :** Implémentation d'une politique de sécurité stricte côté NestJS. Utilisation systématique de Data Transfer Objects (DTO) pour valider la forme et le type de chaque requête entrante avant toute interaction avec la base de données. Mise en place de Guards pour vérifier l'authenticité des tokens JWT et configuration fine des règles CORS.
 
 ### 3. Fiabilité Industrielle et Prévention des Régressions
 
 **Le problème :** Assurer qu'une modification sur une route de l'API ou sur une logique de permission ne casse pas le reste de l'application, un défi majeur lors de la découverte d'un framework backend complexe.
-**La solution :** Rédaction d'une suite de plus de 60 tests unitaires sur le backend (avec Jest). Ces tests sont couplés à une pipeline d'Intégration Continue (CI) qui valide automatiquement l'intégrité de la logique métier à chaque nouvelle modification du code source.
+**La solution :** Rédaction d'une suite de plus de 60 tests unitaires sur le backend (avec Jest). Ces tests sont couplés à une pipeline d'Intégration Continue qui valide automatiquement l'intégrité de la logique métier à chaque nouvelle modification du code source.
 
 ## Architecture du Projet
 
