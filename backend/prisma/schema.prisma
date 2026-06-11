@@ -122,3 +122,9 @@ model ProjectMember {
 
   @@unique([userId, projectId])
 }
+
+model Doc {
+  id        String      @id @default(uuid())
+  title     String
+  
+}

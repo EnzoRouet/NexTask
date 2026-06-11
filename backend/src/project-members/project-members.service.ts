@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateProjectMemberDto } from './dto/create-project-member.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { ProjectRole } from '@prisma/client';
 
 @Injectable()
 export class ProjectMembersService {
@@ -96,8 +97,55 @@ export class ProjectMembersService {
         id: project.owner.id,
         name: `${project.owner.name} (Créateur)`,
       },
+      role: 'OWNER',
     };
 
     return [ownerAsMember, ...members];
+  }
+
+  async updateRole(
+    projectId: string,
+    targetUserId: string,
+    newRole: ProjectRole,
+    requesterId: string,
+  ) {
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      include: {
+        members: {
+          where: { userId: requesterId },
+        },
+      },
+    });
+
+    if (!project) throw new NotFoundException('Projet introuvable');
+
+    const isOwner = requesterId === project.ownerId;
+    const isPO = 'PO' === project.members[0]?.role;
+
+    if (!isOwner && !isPO) {
+      throw new ForbiddenException(
+        'Seul le créateur ou un PO peut modifier les rôles.',
+      );
+    }
+
+    if (targetUserId === project.ownerId) {
+      throw new ForbiddenException(
+        'Le rôle du créateur du projet ne peut pas être modifié.',
+      );
+    }
+
+    const targetMember = await this.prisma.projectMember.findFirst({
+      where: { projectId: projectId, userId: targetUserId },
+    });
+
+    if (!targetMember) {
+      throw new NotFoundException('Membre introuvable dans ce projet.');
+    }
+
+    return await this.prisma.projectMember.update({
+      where: { id: targetMember.id },
+      data: { role: newRole },
+    });
   }
 }

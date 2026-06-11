@@ -35,6 +35,7 @@ export function CreateTicketModal({
       title: "",
       projectId: projectId,
       columnId: columnId,
+      priority: "MEDIUM",
     },
   });
 
@@ -103,6 +104,29 @@ export function CreateTicketModal({
             {errors.title && (
               <p className="mt-1 flex text-xs text-red-500 font-medium">
                 {errors.title.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="priority"
+              className="block text-sm font-medium text-neutral-700 mb-1"
+            >
+              Priorité
+            </label>
+            <select
+              id="priority"
+              {...register("priority")}
+              className="w-full h-10 px-3 rounded-lg border border-neutral-200 bg-white text-sm text-neutral-700 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            >
+              <option value="LOW">Basse</option>
+              <option value="MEDIUM">Moyenne</option>
+              <option value="HIGH">Haute</option>
+            </select>
+            {errors.priority && (
+              <p className="mt-1 flex text-xs text-red-500 font-medium">
+                {errors.priority.message}
               </p>
             )}
           </div>

@@ -91,6 +91,19 @@ export function TicketCard({
     }
   };
 
+  const getPriorityColor = (priority: string | undefined) => {
+    switch (priority) {
+      case "HIGH":
+        return "bg-red-500";
+      case "MEDIUM":
+        return "bg-blue-500";
+      case "LOW":
+        return "bg-gray-400";
+      default:
+        return "bg-transparent";
+    }
+  };
+
   return (
     <li
       onClick={() => onTicketClick(ticket)}
@@ -98,13 +111,17 @@ export function TicketCard({
       style={style}
       {...listeners}
       {...attributes}
-      className={`bg-white p-3 mb-2 shadow-sm border rounded-lg text-neutral-800 flex justify-between items-center group relative transition-colors ${
+      className={`bg-white p-3 mb-2 shadow-sm border rounded-lg text-neutral-800 flex justify-between items-start group relative transition-colors overflow-hidden ${
         canEdit
           ? "border-neutral-200 cursor-grab active:cursor-grabbing hover:border-neutral-300"
           : "border-neutral-100 bg-neutral-50 opacity-75 cursor-not-allowed"
       }`}
     >
-      <div className="flex flex-col gap-1 w-full pr-8">
+      <div
+        className={`absolute left-0 top-0 bottom-0 w-1 ${getPriorityColor(ticket.priority)}`}
+      />
+
+      <div className="flex flex-col gap-2 w-full pl-2 pr-8">
         <span className="font-medium text-sm flex items-center gap-2">
           {!canEdit && <Lock className="w-3 h-3 text-neutral-400" />}
           {ticket.title}
@@ -137,7 +154,7 @@ export function TicketCard({
         onClick={handleDelete}
         onPointerDown={(e) => e.stopPropagation()}
         disabled={isDeleting || !canEdit}
-        className={`absolute right-2 p-1.5 rounded-md flex items-center justify-center transition-opacity ${
+        className={`absolute right-2 top-2 p-1.5 rounded-md flex items-center justify-center transition-opacity ${
           canEdit
             ? "text-red-500 opacity-0 group-hover:opacity-100 hover:bg-red-50 disabled:opacity-50"
             : "text-neutral-300 opacity-0 pointer-events-none"

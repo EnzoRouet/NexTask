@@ -10,6 +10,7 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
+
   async create(createProjectDto: CreateProjectDto, userId: string) {
     return await this.prisma.project.create({
       data: {
@@ -47,7 +48,6 @@ export class ProjectsService {
     const response = await this.prisma.project.findFirst({
       where: {
         id: id,
-
         OR: [
           { ownerId: userId },
           {
@@ -60,6 +60,20 @@ export class ProjectsService {
         ],
       },
       include: {
+        owner: {
+          select: { id: true, name: true },
+        },
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
         columns: {
           orderBy: { position: 'asc' },
           include: {

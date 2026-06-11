@@ -27,52 +27,118 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-black p-4">
-      <h1 className="text-4xl font-bold mb-8">Tableau de bord NexTask</h1>
-
-      {!session ? (
-        <div className="bg-white p-6 rounded-lg shadow-md text-center">
-          <p className="text-lg text-red-500">Tu n&apos;es pas connecté.</p>
-        </div>
-      ) : (
-        <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl">
-          <div className="flex justify-between items-center mb-8">
-            <p className="text-xl">
-              Bonjour,{" "}
-              <span className="font-bold text-blue-600">
-                {session.user?.name}
-              </span>
-            </p>
-            <LogoutButton />
-          </div>
-
+    <div className="min-h-screen bg-gray-50 text-black font-sans p-4 md:p-8">
+      <div className="max-w-6xl mx-auto flex flex-col gap-8">
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b border-gray-200 gap-4">
           <div>
-            <h2 className="text-2xl font-semibold mb-6">Vos Projets</h2>
-            <NewProjectButton token={session.access_token ?? ""} />
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+              Nex<span className="text-blue-600">Task</span>
+            </h1>
+            {session && (
+              <p className="text-lg text-gray-600 mt-2">
+                Bonjour,{" "}
+                <span className="font-bold text-blue-600 tracking-wide">
+                  {session.user?.name}
+                </span>
+              </p>
+            )}
           </div>
+          {session && <LogoutButton />}
+        </header>
 
-          {projects.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {projects.map((project) => (
-                <Link
-                  key={project.id}
-                  href={`/${project.id}/board`}
-                  className="p-6 border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-lg transition-all"
-                >
-                  <h3 className="text-lg font-bold">{project.name}</h3>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Cliquez pour voir le tableau
-                  </p>
-                </Link>
-              ))}
+        {!session ? (
+          <div className="flex flex-col items-center justify-center p-12 bg-white shadow-md rounded-lg text-center">
+            <div className="w-16 h-16 mb-4 rounded-full bg-red-50 flex items-center justify-center border border-red-100">
+              <svg
+                className="w-8 h-8 text-red-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
             </div>
-          ) : (
-            <div className="p-8 border-2 border-dashed border-gray-300 rounded-lg text-center text-gray-500">
-              Aucun projet trouvé. Créez-en un premier !
+            <p className="text-lg text-red-500 font-medium">
+              Tu n&apos;es pas connecté.
+            </p>
+          </div>
+        ) : (
+          <main className="flex flex-col gap-8 bg-white p-8 rounded-lg shadow-md w-full">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <h2 className="text-2xl font-semibold text-gray-800">
+                Vos Projets
+              </h2>
+              <NewProjectButton token={session.access_token ?? ""} />
             </div>
-          )}
-        </div>
-      )}
+
+            {projects.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {projects.map((project) => (
+                  <Link
+                    key={project.id}
+                    href={`/${project.id}/board`}
+                    className="group relative flex flex-col justify-between p-6 h-40 bg-white border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-lg transition-all duration-300 ease-out"
+                  >
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                        {project.name}
+                      </h3>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                      <span className="text-sm text-gray-500 group-hover:text-blue-500 transition-colors">
+                        Cliquez pour voir le tableau
+                      </span>
+                      <svg
+                        className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transform group-hover:translate-x-1 transition-all"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M14 5l7 7m0 0l-7 7m7-7H3"
+                        />
+                      </svg>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center p-16 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 text-center">
+                <div className="w-16 h-16 mb-4 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
+                  <svg
+                    className="w-8 h-8 text-blue-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                    />
+                  </svg>
+                </div>
+                <p className="text-lg text-gray-600 font-medium">
+                  Aucun projet trouvé
+                </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Créez-en un premier pour commencer !
+                </p>
+              </div>
+            )}
+          </main>
+        )}
+      </div>
     </div>
   );
 }

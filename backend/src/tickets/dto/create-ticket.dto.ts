@@ -1,3 +1,4 @@
+import { Priority } from '@prisma/client';
 import { z } from 'zod';
 
 export const CreateTicketSchema = z.object({
@@ -8,6 +9,7 @@ export const CreateTicketSchema = z.object({
     .string()
     .min(3, 'La description de votre ticket est trop courte')
     .optional(),
+  priority: z.enum(Priority).optional(),
 });
 
 export type CreateTicketDto = z.infer<typeof CreateTicketSchema>;
