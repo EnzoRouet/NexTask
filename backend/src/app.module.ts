@@ -8,6 +8,7 @@ import { TicketsModule } from './tickets/tickets.module';
 import { ProjectsModule } from './projects/projects.module';
 import { ColumnsModule } from './columns/columns.module';
 import { ProjectMembersModule } from './project-members/project-members.module';
+import { DocumentationModule } from './documentation/documentation.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ProjectMembersModule } from './project-members/project-members.module';
     ProjectsModule,
     ColumnsModule,
     ProjectMembersModule,
+    DocumentationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
