@@ -5,7 +5,6 @@ import type { ActiveUser } from '../auth/types/active-user.interface';
 
 describe('DocumentationController', () => {
   let controller: DocumentationController;
-  let service: DocumentationService;
 
   const mockDocumentationService = {
     create: jest.fn(),
@@ -27,7 +26,6 @@ describe('DocumentationController', () => {
     }).compile();
 
     controller = module.get<DocumentationController>(DocumentationController);
-    service = module.get<DocumentationService>(DocumentationService);
   });
 
   afterEach(() => {
