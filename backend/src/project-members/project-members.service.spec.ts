@@ -171,6 +171,7 @@ describe('ProjectMembersService', () => {
       expect(result).toEqual([
         {
           id: `owner-${mockProject.owner.id}`,
+          role: 'OWNER',
           user: {
             id: mockProject.owner.id,
             name: `${mockProject.owner.name} (Créateur)`,

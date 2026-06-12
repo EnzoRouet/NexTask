@@ -84,7 +84,6 @@ export function MembersManager({
         <Users className="w-4 h-4 text-gray-500 ml-1" />
       </button>
 
-      {/* La Modale de Gestion */}
       {isOpen && (
         <div className="fixed inset-0 bg-neutral-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg flex flex-col overflow-hidden">

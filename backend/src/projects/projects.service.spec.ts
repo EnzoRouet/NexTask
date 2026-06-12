@@ -105,6 +105,16 @@ describe('ProjectsService', () => {
           OR: [{ ownerId: userId }, { members: { some: { userId: userId } } }],
         },
         include: {
+          owner: {
+            select: { id: true, name: true },
+          },
+          members: {
+            include: {
+              user: {
+                select: { id: true, name: true, email: true },
+              },
+            },
+          },
           columns: {
             include: {
               tickets: {
