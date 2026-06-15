@@ -81,7 +81,7 @@ export default async function HomePage() {
                 {projects.map((project) => (
                   <Link
                     key={project.id}
-                    href={`/${project.id}/board`}
+                    href={`/${project.id}`}
                     className="group relative flex flex-col justify-between p-6 h-40 bg-white border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-lg transition-all duration-300 ease-out"
                   >
                     <div>
