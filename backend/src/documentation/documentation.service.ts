@@ -28,6 +28,15 @@ export class DocumentationService {
     });
   }
 
+  async getProjectId(docId: string): Promise<string | null> {
+    const doc = await this.prisma.doc.findUnique({
+      where: { id: docId },
+      select: { projectId: true },
+    });
+
+    return doc?.projectId ?? null;
+  }
+
   async create(createDocumentationDto: CreateDocumentationDto, userId: string) {
     const project = await this.checkProjectAccess(
       createDocumentationDto.projectId,

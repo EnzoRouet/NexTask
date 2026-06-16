@@ -11,6 +11,15 @@ import { PrismaService } from '../prisma/prisma.service';
 export class TicketsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async getProjectId(ticketId: string): Promise<string | null> {
+    const ticket = await this.prisma.ticket.findUnique({
+      where: { id: ticketId },
+      select: { projectId: true },
+    });
+
+    return ticket?.projectId ?? null;
+  }
+
   private async getTicketAndCheckRights(id: string, userId: string) {
     const ticket = await this.findOne(id, userId);
 

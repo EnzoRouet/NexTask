@@ -22,6 +22,12 @@ import { ZodValidationPipe } from '../pipes/zod-validation.pipe';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { ActiveUser } from '../auth/types/active-user.interface';
 import { GetUser } from '../auth/decorators/get-user.decorator';
+import { ProjectRoleGuard } from '../auth/guards/project-role/project-role.guard';
+import {
+  RequireProjectRole,
+  ResourceType,
+} from '../auth/decorators/require-role.decorator';
+import { ProjectRole } from '@prisma/client';
 
 @Controller('documentation')
 export class DocumentationController {
@@ -67,9 +73,16 @@ export class DocumentationController {
     );
   }
 
-  @Delete(':id')
-  @UseGuards(JwtAuthGuard)
-  remove(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: ActiveUser) {
+  @Delete(':docId')
+  @UseGuards(JwtAuthGuard, ProjectRoleGuard)
+  @RequireProjectRole({
+    roles: [ProjectRole.PO, ProjectRole.OWNER],
+    resource: ResourceType.DOCUMENTATION,
+  })
+  remove(
+    @Param('docId', ParseUUIDPipe) id: string,
+    @GetUser() user: ActiveUser,
+  ) {
     return this.documentationService.remove(id, user.id);
   }
 }

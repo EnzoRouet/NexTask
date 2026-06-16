@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import { DocDetails } from "@/types/documentation";
+import { Project } from "@/types/projects";
 import { DocumentationEditor } from "@/components/wiki/DocumentationEditor";
 import { DeleteDocButton } from "@/components/wiki/DeleteDocButton";
 import Link from "next/link";
@@ -21,11 +22,28 @@ export default async function EditorPage({
 
   const { docId, projectId } = await params;
 
-  const document = await apiFetch<DocDetails>(
-    `/documentation/${docId}`,
-    { method: "GET" },
-    session.access_token,
-  );
+  const [document, project] = await Promise.all([
+    apiFetch<DocDetails>(
+      `/documentation/${docId}`,
+      { method: "GET" },
+      session.access_token,
+    ),
+    apiFetch<Project>(
+      `/projects/${projectId}`,
+      { method: "GET" },
+      session.access_token,
+    ),
+  ]);
+
+  let currentUserRole = "DEVELOPER";
+  if (project.ownerId === session.user.id) {
+    currentUserRole = "OWNER";
+  } else {
+    const member = project.members?.find((m) => m.userId === session.user.id);
+    if (member) currentUserRole = member.role;
+  }
+
+  const canDelete = currentUserRole === "PO" || currentUserRole === "OWNER";
 
   const handleSave = async (data: { title: string; content: string }) => {
     "use server";
@@ -56,11 +74,13 @@ export default async function EditorPage({
           <span>←</span> Retour au Wiki
         </Link>
 
-        <DeleteDocButton
-          projectId={projectId}
-          docId={docId}
-          token={session.access_token}
-        />
+        {canDelete && (
+          <DeleteDocButton
+            projectId={projectId}
+            docId={docId}
+            token={session.access_token}
+          />
+        )}
       </div>
 
       <DocumentationEditor
