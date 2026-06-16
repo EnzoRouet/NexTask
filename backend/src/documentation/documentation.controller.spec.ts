@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DocumentationController } from './documentation.controller';
 import { DocumentationService } from './documentation.service';
 import type { ActiveUser } from '../auth/types/active-user.interface';
+import { ProjectRoleGuard } from '../auth/guards/project-role/project-role.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 describe('DocumentationController', () => {
   let controller: DocumentationController;
@@ -23,7 +25,12 @@ describe('DocumentationController', () => {
           useValue: mockDocumentationService,
         },
       ],
-    }).compile();
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue({ canActivate: () => true })
+      .overrideGuard(ProjectRoleGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get<DocumentationController>(DocumentationController);
   });
@@ -110,6 +117,69 @@ describe('DocumentationController', () => {
         mockUser.id,
       );
       expect(result).toEqual(expectedDocument);
+    });
+  });
+
+  describe('update', () => {
+    it('should successfully pass the document ID, update DTO, and user ID to the service when updating a document', async () => {
+      // Arrange
+      const mockUser: ActiveUser = {
+        id: 'user-123',
+        email: 'test@test.com',
+        role: 'USER',
+      };
+      const mockDocumentId = 'doc-789';
+      const updateDto = { title: 'Updated Setup Guide' };
+      const expectedUpdatedDocument = { id: mockDocumentId, ...updateDto };
+
+      mockDocumentationService.update.mockResolvedValue(
+        expectedUpdatedDocument,
+      );
+
+      // Act
+      const result = await controller.update(
+        mockDocumentId,
+        updateDto,
+        mockUser,
+      );
+
+      // Assert
+      expect(mockDocumentationService.update).toHaveBeenCalledWith(
+        mockDocumentId,
+        updateDto,
+        mockUser.id,
+      );
+      expect(result).toEqual(expectedUpdatedDocument);
+    });
+  });
+
+  describe('remove', () => {
+    it('should successfully pass the document ID and user ID to the service when deleting a document', async () => {
+      // Arrange
+      const mockUser: ActiveUser = {
+        id: 'user-123',
+        email: 'test@test.com',
+        role: 'USER',
+      };
+      const mockDocumentId = 'doc-789';
+      const expectedDeletedDocument = {
+        id: mockDocumentId,
+        title: 'Deleted Doc',
+      };
+
+      mockDocumentationService.remove.mockResolvedValue(
+        expectedDeletedDocument,
+      );
+
+      // Act
+      const result = await controller.remove(mockDocumentId, mockUser);
+
+      // Assert
+      expect(mockDocumentationService.remove).toHaveBeenCalledWith(
+        mockDocumentId,
+        mockUser.id,
+      );
+      expect(result).toEqual(expectedDeletedDocument);
     });
   });
 });
