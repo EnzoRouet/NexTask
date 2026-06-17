@@ -17,6 +17,8 @@ const mockPrismaService = {
     findFirst: jest.fn(),
     findMany: jest.fn(),
     create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
   },
   user: {
     findUnique: jest.fn(),
@@ -99,17 +101,23 @@ describe('ProjectMembersService', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw a ForbiddenException if requester is not owner and not PO', async () => {
+    it('should throw a ForbiddenException if requester tries to invite a role with higher weight', async () => {
       // Arrange
+      const devRequesterId = 'dev-123';
+      const devCreateDto: CreateProjectMemberDto = {
+        email: targetEmail,
+        role: ProjectRole.PO,
+      };
+
       prisma.project.findUnique.mockResolvedValue({
         id: projectId,
         ownerId: 'someone-else',
-        members: [{ role: ProjectRole.DEVELOPER }],
+        members: [{ userId: devRequesterId, role: ProjectRole.DEVELOPER }],
       });
 
       // Act & Assert
       await expect(
-        service.create(projectId, createDto, requesterId),
+        service.create(projectId, devCreateDto, devRequesterId),
       ).rejects.toThrow(ForbiddenException);
     });
 
@@ -195,6 +203,90 @@ describe('ProjectMembersService', () => {
       await expect(service.findAll(projectId)).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  describe('remove', () => {
+    it('should successfully remove a member if requester has higher weight (PO kicks DEV)', async () => {
+      // Arrange
+      const poRequesterId = 'po-123';
+      const devTargetId = 'dev-456';
+
+      const projectMock = {
+        id: projectId,
+        ownerId: 'owner-789',
+        members: [{ userId: poRequesterId, role: ProjectRole.PO }],
+      };
+
+      const targetMemberMock = {
+        id: 'member-999',
+        projectId,
+        userId: devTargetId,
+        role: ProjectRole.DEVELOPER,
+      };
+
+      prisma.project.findUnique.mockResolvedValue(projectMock);
+      prisma.projectMember.findFirst.mockResolvedValue(targetMemberMock);
+      prisma.projectMember.delete.mockResolvedValue(targetMemberMock);
+
+      // Act
+      const result = await service.remove(
+        projectId,
+        devTargetId,
+        poRequesterId,
+      );
+
+      // Assert
+      expect(result).toEqual(targetMemberMock);
+      expect(prisma.projectMember.delete).toHaveBeenCalledWith({
+        where: { id: targetMemberMock.id },
+      });
+    });
+
+    it('should throw ForbiddenException if trying to remove the OWNER', async () => {
+      // Arrange
+      const poRequesterId = 'po-123';
+      const ownerTargetId = 'owner-789';
+
+      const projectMock = {
+        id: projectId,
+        ownerId: ownerTargetId,
+        members: [{ userId: poRequesterId, role: ProjectRole.PO }],
+      };
+
+      prisma.project.findUnique.mockResolvedValue(projectMock);
+
+      // Act & Assert
+      await expect(
+        service.remove(projectId, ownerTargetId, poRequesterId),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should throw ForbiddenException if requester weight is equal or lower than target weight (DEV kicks PO)', async () => {
+      // Arrange
+      const devRequesterId = 'dev-123';
+      const poTargetId = 'po-456';
+
+      const projectMock = {
+        id: projectId,
+        ownerId: 'owner-789',
+        members: [{ userId: devRequesterId, role: ProjectRole.DEVELOPER }],
+      };
+
+      const targetMemberMock = {
+        id: 'member-999',
+        projectId,
+        userId: poTargetId,
+        role: ProjectRole.PO,
+      };
+
+      prisma.project.findUnique.mockResolvedValue(projectMock);
+      prisma.projectMember.findFirst.mockResolvedValue(targetMemberMock);
+
+      // Act & Assert
+      await expect(
+        service.remove(projectId, poTargetId, devRequesterId),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 });

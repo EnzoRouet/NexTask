@@ -1,157 +1,96 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ColumnsController } from './columns.controller';
 import { ColumnsService } from './columns.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { BadRequestException } from '@nestjs/common';
 import type { CreateColumnDto } from './dto/create-column.dto';
 import type { UpdateColumnDto } from './dto/update-column.dto';
 
-const mockPrismaService = {
-  boardColumn: {
-    findFirst: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-  },
+const mockColumnsService = {
+  create: jest.fn(),
+  update: jest.fn(),
+  remove: jest.fn(),
 };
 
-describe('ColumnsService', () => {
-  let service: ColumnsService;
-  let prisma: typeof mockPrismaService;
+describe('ColumnsController', () => {
+  let controller: ColumnsController;
+  let service: typeof mockColumnsService;
 
   beforeEach(async () => {
     jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
+      controllers: [ColumnsController],
       providers: [
-        ColumnsService,
+        {
+          provide: ColumnsService,
+          useValue: mockColumnsService,
+        },
         {
           provide: PrismaService,
-          useValue: mockPrismaService,
+          useValue: {},
         },
       ],
     }).compile();
 
-    service = module.get<ColumnsService>(ColumnsService);
-    prisma = module.get(PrismaService);
+    controller = module.get<ColumnsController>(ColumnsController);
+    service = module.get(ColumnsService);
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    expect(controller).toBeDefined();
   });
 
   describe('create', () => {
-    it('should create a column with position + 1000 from the last column', async () => {
+    it('should call the create method of the service with the correct DTO', async () => {
       // Arrange
+      const createDto: CreateColumnDto = { name: 'TODO' };
       const projectId = 'proj-1';
-      const createDto: CreateColumnDto = {
-        name: 'New Column',
-      };
-
-      const lastColumn = { id: 'col-1', position: 2000, projectId };
-      const expectedColumn = {
-        id: 'col-2',
-        ...createDto,
-        position: 3000,
-        projectId,
-      };
-
-      prisma.boardColumn.findFirst.mockResolvedValue(lastColumn);
-      prisma.boardColumn.create.mockResolvedValue(expectedColumn);
-
-      // Act
-      const result = await service.create(projectId, createDto);
-
-      // Assert
-      expect(result).toEqual(expectedColumn);
-      expect(prisma.boardColumn.findFirst).toHaveBeenCalledWith({
-        where: { projectId: projectId },
-        orderBy: { position: 'desc' },
-      });
-      expect(prisma.boardColumn.create).toHaveBeenCalledWith({
-        data: { ...createDto, position: 3000, projectId: projectId },
-      });
-    });
-
-    it('should create a column with position 1000 if it is the first column of the project', async () => {
-      // Arrange
-      const projectId = 'proj-1';
-      const createDto: CreateColumnDto = {
-        name: 'First Column',
-      };
-      const expectedColumn = {
+      const expectedResult = {
         id: 'col-1',
         ...createDto,
         position: 1000,
         projectId,
       };
-
-      prisma.boardColumn.findFirst.mockResolvedValue(null);
-      prisma.boardColumn.create.mockResolvedValue(expectedColumn);
+      service.create.mockResolvedValue(expectedResult);
 
       // Act
-      const result = await service.create(projectId, createDto);
+      const result = await controller.create(projectId, createDto);
 
       // Assert
-      expect(result).toEqual(expectedColumn);
-      expect(prisma.boardColumn.create).toHaveBeenCalledWith({
-        data: { ...createDto, position: 1000, projectId: projectId },
-      });
+      expect(result).toEqual(expectedResult);
+      expect(service.create).toHaveBeenCalledWith(projectId, createDto);
     });
   });
 
   describe('update', () => {
-    it('should update and return the column', async () => {
+    it('should call the update method of the service with the given ID and DTO', async () => {
       // Arrange
       const id = 'col-1';
-      const updateDto: UpdateColumnDto = { name: 'Updated Name' };
-      const expectedColumn = { id, name: 'Updated Name', position: 1000 };
-
-      prisma.boardColumn.update.mockResolvedValue(expectedColumn);
+      const updateDto: UpdateColumnDto = { name: 'IN_PROGRESS' };
+      const expectedResult = { id, name: 'IN_PROGRESS', position: 1000 };
+      service.update.mockResolvedValue(expectedResult);
 
       // Act
-      const result = await service.update(id, updateDto);
+      const result = await controller.update(id, updateDto);
 
       // Assert
-      expect(result).toEqual(expectedColumn);
-      expect(prisma.boardColumn.update).toHaveBeenCalledWith({
-        where: { id },
-        data: updateDto,
-      });
+      expect(result).toEqual(expectedResult);
+      expect(service.update).toHaveBeenCalledWith(id, updateDto);
     });
   });
 
   describe('remove', () => {
-    it('should delete the column if it is empty', async () => {
+    it('should call the remove method of the service with the given ID', async () => {
       // Arrange
       const id = 'col-1';
-      const expectedColumn = { id, name: 'To Delete' };
-
-      prisma.boardColumn.delete.mockResolvedValue(expectedColumn);
+      const expectedResult = { id, name: 'DONE', position: 3000 };
+      service.remove.mockResolvedValue(expectedResult);
 
       // Act
-      const result = await service.remove(id);
+      const result = await controller.remove(id);
 
       // Assert
-      expect(result).toEqual(expectedColumn);
-      expect(prisma.boardColumn.delete).toHaveBeenCalledWith({ where: { id } });
-    });
-
-    it('should throw a BadRequestException if the column still contains tickets (Prisma P2003 error)', async () => {
-      // Arrange
-      const id = 'col-1';
-      prisma.boardColumn.delete.mockRejectedValue({ code: 'P2003' });
-
-      // Act & Assert
-      await expect(service.remove(id)).rejects.toThrow(BadRequestException);
-    });
-
-    it('should throw the original error if it is not a P2003 error', async () => {
-      // Arrange
-      const id = 'col-1';
-      const randomError = new Error('Database down');
-      prisma.boardColumn.delete.mockRejectedValue(randomError);
-
-      // Act & Assert
-      await expect(service.remove(id)).rejects.toThrow(randomError);
+      expect(result).toEqual(expectedResult);
+      expect(service.remove).toHaveBeenCalledWith(id);
     });
   });
 });

@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProjectMembersController } from './project-members.controller';
 import { ProjectMembersService } from './project-members.service';
+import { PrismaService } from '../prisma/prisma.service';
 import type { CreateProjectMemberDto } from './dto/create-project-member.dto';
 import type { ActiveUser } from '../auth/types/active-user.interface';
 import { ProjectRole } from '@prisma/client';
@@ -8,6 +9,8 @@ import { ProjectRole } from '@prisma/client';
 const mockProjectMembersService = {
   create: jest.fn(),
   findAll: jest.fn(),
+  updateRole: jest.fn(),
+  remove: jest.fn(),
 };
 
 describe('ProjectMembersController', () => {
@@ -28,6 +31,10 @@ describe('ProjectMembersController', () => {
         {
           provide: ProjectMembersService,
           useValue: mockProjectMembersService,
+        },
+        {
+          provide: PrismaService,
+          useValue: {},
         },
       ],
     }).compile();
@@ -82,6 +89,60 @@ describe('ProjectMembersController', () => {
       // Assert
       expect(result).toEqual(expectedResult);
       expect(service.findAll).toHaveBeenCalledWith(projectId);
+    });
+  });
+
+  describe('updateRole', () => {
+    it('should call the updateRole method of the service', async () => {
+      // Arrange
+      const projectId = 'proj-1';
+      const targetUserId = 'target-456';
+      const updateDto = { role: ProjectRole.PO };
+      const expectedResult = { id: 'member-1', role: 'PO' };
+      service.updateRole.mockResolvedValue(expectedResult);
+
+      // Act
+      const result = await controller.updateRole(
+        projectId,
+        targetUserId,
+        updateDto,
+        mockUser,
+      );
+
+      // Assert
+      expect(result).toEqual(expectedResult);
+      expect(service.updateRole).toHaveBeenCalledWith(
+        projectId,
+        targetUserId,
+        updateDto.role,
+        mockUser.id,
+      );
+    });
+  });
+
+  describe('remove', () => {
+    it('should call the remove method of the service', async () => {
+      // Arrange
+      const projectId = 'proj-123';
+      const targetUserId = 'target-456';
+      const expectedResult = {
+        id: 'member-1',
+        projectId,
+        userId: targetUserId,
+        role: 'DEVELOPER',
+      };
+      service.remove.mockResolvedValue(expectedResult);
+
+      // Act
+      const result = await controller.remove(projectId, targetUserId, mockUser);
+
+      // Assert
+      expect(result).toEqual(expectedResult);
+      expect(service.remove).toHaveBeenCalledWith(
+        projectId,
+        targetUserId,
+        mockUser.id,
+      );
     });
   });
 });
