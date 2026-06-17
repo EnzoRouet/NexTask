@@ -6,9 +6,7 @@ import {
   ResourceType,
 } from '../../decorators/require-role.decorator';
 import { Request } from 'express';
-import { DocumentationService } from '../../../documentation/documentation.service';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { TicketsService } from '../../../tickets/tickets.service';
 import { ProjectRole } from '@prisma/client';
 
 interface AuthenticatedRequest extends Request {
@@ -27,8 +25,6 @@ const defaultParamNames: Record<ResourceType, string> = {
 export class ProjectRoleGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    private readonly docService: DocumentationService,
-    private readonly ticketService: TicketsService,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -57,13 +53,23 @@ export class ProjectRoleGuard implements CanActivate {
         projectId = resourceId;
         break;
 
-      case ResourceType.DOCUMENTATION:
-        projectId = await this.docService.getProjectId(resourceId);
+      case ResourceType.DOCUMENTATION: {
+        const doc = await this.prisma.doc.findUnique({
+          where: { id: resourceId },
+          select: { projectId: true },
+        });
+        projectId = doc?.projectId ?? null;
         break;
+      }
 
-      case ResourceType.TICKET:
-        projectId = await this.ticketService.getProjectId(resourceId);
+      case ResourceType.TICKET: {
+        const ticket = await this.prisma.ticket.findUnique({
+          where: { id: resourceId },
+          select: { projectId: true },
+        });
+        projectId = ticket?.projectId ?? null;
         break;
+      }
     }
 
     if (!projectId) return false;

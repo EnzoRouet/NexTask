@@ -29,12 +29,24 @@ export class ProjectMembersService {
       throw new NotFoundException('Projet introuvable');
     }
 
-    const isOwner = requesterId === project.ownerId;
-    const isPO = 'PO' === project.members[0]?.role;
+    const requesterRole =
+      requesterId === project.ownerId ? 'OWNER' : project.members[0]?.role;
 
-    if (!isOwner && !isPO) {
+    if (!requesterRole) {
+      throw new ForbiddenException('Vous ne faites pas partie de ce projet');
+    }
+
+    const roleWeights = {
+      OWNER: 3,
+      PO: 2,
+      DEVELOPER: 1,
+    };
+
+    const targetRole = createProjectMemberDto.role;
+
+    if (roleWeights[targetRole] > roleWeights[requesterRole]) {
       throw new ForbiddenException(
-        "Vous n'êtes pas autorisé à faire cette action",
+        "Vous n'avez pas la permission de donné ce rang a la personne que vous conviez",
       );
     }
 
