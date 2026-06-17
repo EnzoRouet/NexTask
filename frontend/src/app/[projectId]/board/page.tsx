@@ -67,6 +67,7 @@ export default async function BoardPage({ params }: Readonly<BoardPageProps>) {
           members={formattedMembers}
           token={session.access_token}
           currentUserRole={currentUserRole}
+          currentUserId={session.user.id}
         />
       </div>
 

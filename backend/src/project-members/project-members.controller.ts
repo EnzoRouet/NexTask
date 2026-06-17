@@ -7,6 +7,7 @@ import {
   UseGuards,
   Get,
   Patch,
+  Delete,
 } from '@nestjs/common';
 import { ProjectMembersService } from './project-members.service';
 import {
@@ -21,6 +22,12 @@ import {
   type UpdateProjectMemberDto,
   UpdateProjectMemberSchema,
 } from './dto/update-project-member.dto';
+import { ProjectRole } from '@prisma/client';
+import {
+  RequireProjectRole,
+  ResourceType,
+} from '../auth/decorators/require-role.decorator';
+import { ProjectRoleGuard } from '../auth/guards/project-role/project-role.guard';
 
 @Controller('projects')
 export class ProjectMembersController {
@@ -62,5 +69,19 @@ export class ProjectMembersController {
       updateDto.role,
       user.id,
     );
+  }
+
+  @Delete(':projectId/members/:userId')
+  @UseGuards(JwtAuthGuard, ProjectRoleGuard)
+  @RequireProjectRole({
+    roles: [ProjectRole.PO, ProjectRole.OWNER],
+    resource: ResourceType.PROJECT, // Le Vigile intercepte le :projectId de l'URL
+  })
+  remove(
+    @Param('projectId', ParseUUIDPipe) projectId: string,
+    @Param('userId', ParseUUIDPipe) targetUserId: string,
+    @GetUser() user: ActiveUser,
+  ) {
+    return this.projectMembersService.remove(projectId, targetUserId, user.id);
   }
 }

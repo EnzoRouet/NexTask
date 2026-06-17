@@ -160,4 +160,56 @@ export class ProjectMembersService {
       data: { role: newRole },
     });
   }
+
+  async remove(projectId: string, targetUserId: string, requesterId: string) {
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      include: {
+        members: {
+          where: { userId: requesterId },
+        },
+      },
+    });
+
+    if (!project) {
+      throw new NotFoundException('Projet introuvable');
+    }
+
+    if (targetUserId === project?.ownerId) {
+      throw new ForbiddenException(
+        "Vous n'avez pas le droit d'exclure le détenteur du projet",
+      );
+    }
+
+    const targetMember = await this.prisma.projectMember.findFirst({
+      where: { projectId: projectId, userId: targetUserId },
+    });
+
+    if (!targetMember) {
+      throw new NotFoundException('Membre introuvable dans ce projet.');
+    }
+
+    const requesterRole =
+      requesterId === project.ownerId ? 'OWNER' : project.members[0]?.role;
+
+    if (!requesterRole) {
+      throw new ForbiddenException('Vous ne faites pas partie de ce projet');
+    }
+
+    const roleWeights = {
+      OWNER: 3,
+      PO: 2,
+      DEVELOPER: 1,
+    };
+
+    if (roleWeights[targetMember.role] > roleWeights[requesterRole]) {
+      throw new ForbiddenException(
+        "Vous n'avez pas la permission d'exclure ce membre du projet",
+      );
+    }
+
+    return await this.prisma.projectMember.delete({
+      where: { id: targetMember.id },
+    });
+  }
 }

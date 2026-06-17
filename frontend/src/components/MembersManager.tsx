@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Users, X, Loader2, ShieldAlert } from "lucide-react";
+import { Users, X, Loader2, ShieldAlert, UserMinus } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
@@ -19,6 +19,7 @@ interface MembersManagerProps {
   members: Member[];
   token: string;
   currentUserRole: string;
+  currentUserId: string;
 }
 
 export function MembersManager({
@@ -26,13 +27,21 @@ export function MembersManager({
   members,
   token,
   currentUserRole,
+  currentUserId,
 }: Readonly<MembersManagerProps>) {
   const [isOpen, setIsOpen] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [removingId, setRemovingId] = useState<string | null>(null);
   const router = useRouter();
 
   const canManageRoles =
     currentUserRole === "OWNER" || currentUserRole === "PO";
+
+  const roleWeights: Record<string, number> = {
+    OWNER: 3,
+    PO: 2,
+    DEVELOPER: 1,
+  };
 
   const handleRoleChange = async (targetUserId: string, newRole: string) => {
     setUpdatingId(targetUserId);
@@ -51,6 +60,31 @@ export function MembersManager({
       alert("Impossible de modifier le rôle.");
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleRemoveMember = async (targetUserId: string, userName: string) => {
+    if (
+      !window.confirm(
+        `Êtes-vous sûr de vouloir exclure ${userName} du projet ?`,
+      )
+    ) {
+      return;
+    }
+
+    setRemovingId(targetUserId);
+    try {
+      await apiFetch(
+        `/projects/${projectId}/members/${targetUserId}`,
+        { method: "DELETE" },
+        token,
+      );
+      router.refresh();
+    } catch (error: any) {
+      console.error("Erreur lors de l'exclusion :", error);
+      alert(error.message || "Impossible d'exclure ce membre.");
+    } finally {
+      setRemovingId(null);
     }
   };
 
@@ -107,10 +141,19 @@ export function MembersManager({
             <div className="p-2 max-h-[60vh] overflow-y-auto">
               {members.map((member) => {
                 const isOwner = member.role === "OWNER";
+                const isMe = member.user.id === currentUserId;
+
+                const targetRoleWeight =
+                  roleWeights[member.role || "DEVELOPER"];
+                const currentUserWeight = roleWeights[currentUserRole];
+
+                const canKick =
+                  !isOwner && !isMe && currentUserWeight >= targetRoleWeight;
+
                 return (
                   <div
                     key={member.user.id}
-                    className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-xl transition-colors"
+                    className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-xl transition-colors group"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold">
@@ -119,6 +162,11 @@ export function MembersManager({
                       <div className="flex flex-col">
                         <span className="text-sm font-bold text-gray-900 flex items-center gap-2">
                           {member.user.name.replace(" (Créateur)", "")}
+                          {isMe && (
+                            <span className="text-xs font-normal text-gray-400 italic">
+                              (Vous)
+                            </span>
+                          )}
                           {isOwner && (
                             <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
                           )}
@@ -142,13 +190,16 @@ export function MembersManager({
                         <select
                           value={member.role}
                           disabled={
-                            !canManageRoles || updatingId === member.user.id
+                            !canManageRoles ||
+                            isMe ||
+                            updatingId === member.user.id ||
+                            removingId === member.user.id
                           }
                           onChange={(e) =>
                             handleRoleChange(member.user.id, e.target.value)
                           }
                           className={`text-sm px-2 py-1 rounded-md border outline-none ${
-                            !canManageRoles
+                            !canManageRoles || isMe
                               ? "bg-gray-50 text-gray-500 border-transparent cursor-not-allowed"
                               : "bg-white border-gray-200 focus:border-blue-500 cursor-pointer"
                           }`}
@@ -156,6 +207,23 @@ export function MembersManager({
                           <option value="DEVELOPER">Developer</option>
                           <option value="PO">Product Owner</option>
                         </select>
+                      )}
+
+                      {canKick && (
+                        <button
+                          onClick={() =>
+                            handleRemoveMember(member.user.id, member.user.name)
+                          }
+                          disabled={removingId === member.user.id}
+                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                          title="Exclure ce membre"
+                        >
+                          {removingId === member.user.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-red-600" />
+                          ) : (
+                            <UserMinus className="w-4 h-4" />
+                          )}
+                        </button>
                       )}
                     </div>
                   </div>
