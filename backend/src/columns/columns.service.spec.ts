@@ -41,48 +41,59 @@ describe('ColumnsService', () => {
   describe('create', () => {
     it('should create a column with position + 1000 from the last column', async () => {
       // Arrange
+      const projectId = 'proj-1';
       const createDto: CreateColumnDto = {
         name: 'New Column',
-        projectId: 'proj-1',
       };
-      const lastColumn = { id: 'col-1', position: 2000 };
-      const expectedColumn = { id: 'col-2', ...createDto, position: 3000 };
+
+      const lastColumn = { id: 'col-1', position: 2000, projectId };
+      const expectedColumn = {
+        id: 'col-2',
+        ...createDto,
+        position: 3000,
+        projectId,
+      };
 
       prisma.boardColumn.findFirst.mockResolvedValue(lastColumn);
       prisma.boardColumn.create.mockResolvedValue(expectedColumn);
 
       // Act
-      const result = await service.create(createDto);
+      const result = await service.create(projectId, createDto);
 
       // Assert
       expect(result).toEqual(expectedColumn);
       expect(prisma.boardColumn.findFirst).toHaveBeenCalledWith({
-        where: { projectId: createDto.projectId },
+        where: { projectId: projectId },
         orderBy: { position: 'desc' },
       });
       expect(prisma.boardColumn.create).toHaveBeenCalledWith({
-        data: { ...createDto, position: 3000 },
+        data: { ...createDto, position: 3000, projectId: projectId },
       });
     });
 
     it('should create a column with position 1000 if it is the first column of the project', async () => {
       // Arrange
+      const projectId = 'proj-1';
       const createDto: CreateColumnDto = {
         name: 'First Column',
-        projectId: 'proj-1',
       };
-      const expectedColumn = { id: 'col-1', ...createDto, position: 1000 };
+      const expectedColumn = {
+        id: 'col-1',
+        ...createDto,
+        position: 1000,
+        projectId,
+      };
 
       prisma.boardColumn.findFirst.mockResolvedValue(null);
       prisma.boardColumn.create.mockResolvedValue(expectedColumn);
 
       // Act
-      const result = await service.create(createDto);
+      const result = await service.create(projectId, createDto);
 
       // Assert
       expect(result).toEqual(expectedColumn);
       expect(prisma.boardColumn.create).toHaveBeenCalledWith({
-        data: { ...createDto, position: 1000 },
+        data: { ...createDto, position: 1000, projectId: projectId },
       });
     });
   });
