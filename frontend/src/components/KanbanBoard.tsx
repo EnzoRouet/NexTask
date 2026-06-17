@@ -8,6 +8,7 @@ import {
   useSensor,
   useSensors,
   PointerSensor,
+  DragOverlay,
 } from "@dnd-kit/core";
 import { CreateTicketModal } from "./CreateTicketModal";
 import { CreateColumnModal } from "./CreateColumnModal";
@@ -15,6 +16,7 @@ import { InviteMemberModal } from "./InviteMemberModal";
 import { Ticket } from "@/types/tickets";
 import { TicketDetailsModal } from "./TicketDetailsModal";
 import { useKanbanDragAndDrop } from "@/hooks/useKanbanDrag&Drop";
+import { TicketCard } from "./TicketCard";
 
 export interface User {
   id: string;
@@ -42,10 +44,32 @@ export default function KanbanBoard({
   const [isCreateColumnModalOpen, setIsCreateColumnModalOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
+
   const { columns, setColumns, handleDragEnd } = useKanbanDragAndDrop(
     project.columns,
     token,
   );
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleDragStart = (event: any) => {
+    const { active } = event;
+    const activeId = active.id;
+
+    for (const column of columns) {
+      const ticket = column.tickets.find((t) => t.id === activeId);
+      if (ticket) {
+        setActiveTicket(ticket);
+        return;
+      }
+    }
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onDragEndWrapper = (event: any) => {
+    setActiveTicket(null);
+    handleDragEnd(event);
+  };
 
   return (
     <>
@@ -75,7 +99,8 @@ export default function KanbanBoard({
       <div className="flex gap-6 overflow-x-auto pb-4">
         <DndContext
           sensors={sensors}
-          onDragEnd={handleDragEnd}
+          onDragStart={handleDragStart}
+          onDragEnd={onDragEndWrapper}
           id="kanban-board"
         >
           {columns.map((column) => (
@@ -87,9 +112,22 @@ export default function KanbanBoard({
               onTicketClick={setSelectedTicket}
             />
           ))}
+
+          {/* 6. Le composant magique qui survole le DOM */}
+          <DragOverlay>
+            {activeTicket ? (
+              <TicketCard
+                ticket={activeTicket}
+                token={token}
+                currentUser={user}
+                onTicketClick={() => {}} // On désactive le clic pendant qu'il vole
+              />
+            ) : null}
+          </DragOverlay>
         </DndContext>
       </div>
 
+      {/* ... (Tes modales restent identiques) ... */}
       <CreateTicketModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}

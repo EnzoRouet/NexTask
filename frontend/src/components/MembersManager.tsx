@@ -80,6 +80,7 @@ export function MembersManager({
         token,
       );
       router.refresh();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Erreur lors de l'exclusion :", error);
       alert(error.message || "Impossible d'exclure ce membre.");
