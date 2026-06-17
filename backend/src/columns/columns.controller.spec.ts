@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ColumnsController } from './columns.controller';
 import { ColumnsService } from './columns.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { Reflector } from '@nestjs/core';
 import type { CreateColumnDto } from './dto/create-column.dto';
 import type { UpdateColumnDto } from './dto/update-column.dto';
 
@@ -23,6 +25,16 @@ describe('ColumnsController', () => {
           provide: ColumnsService,
           useValue: mockColumnsService,
         },
+        {
+          provide: PrismaService,
+          useValue: {},
+        },
+        {
+          provide: Reflector,
+          useValue: {
+            getAllAndOverride: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -37,16 +49,22 @@ describe('ColumnsController', () => {
   describe('create', () => {
     it('should call the create method of the service with the correct DTO', async () => {
       // Arrange
-      const createDto: CreateColumnDto = { name: 'TODO', projectId: 'proj-1' };
-      const expectedResult = { id: 'col-1', ...createDto, position: 1000 };
+      const createDto: CreateColumnDto = { name: 'TODO' };
+      const projectId = 'proj-1';
+      const expectedResult = {
+        id: 'col-1',
+        ...createDto,
+        position: 1000,
+        projectId,
+      };
       service.create.mockResolvedValue(expectedResult);
 
       // Act
-      const result = await controller.create(createDto);
+      const result = await controller.create(projectId, createDto);
 
       // Assert
       expect(result).toEqual(expectedResult);
-      expect(service.create).toHaveBeenCalledWith(createDto);
+      expect(service.create).toHaveBeenCalledWith(projectId, createDto);
     });
   });
 
