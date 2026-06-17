@@ -5,6 +5,7 @@ export enum ResourceType {
   PROJECT = 'PROJECT',
   DOCUMENTATION = 'DOCUMENTATION',
   TICKET = 'TICKET',
+  COLUMN = 'COLUMN',
 }
 
 export interface RequireRoleOptions {

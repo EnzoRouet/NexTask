@@ -35,10 +35,10 @@ export function CreateColumnModal({
 
     try {
       const newColumn = await apiFetch<BoardColumn>(
-        "/columns",
+        `/columns/${projectId}`,
         {
           method: "POST",
-          body: JSON.stringify({ name, projectId }),
+          body: JSON.stringify({ name }),
         },
         token,
       );

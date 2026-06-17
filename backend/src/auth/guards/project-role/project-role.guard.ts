@@ -19,6 +19,7 @@ const defaultParamNames: Record<ResourceType, string> = {
   [ResourceType.PROJECT]: 'projectId',
   [ResourceType.DOCUMENTATION]: 'docId',
   [ResourceType.TICKET]: 'ticketId',
+  [ResourceType.COLUMN]: 'columnId',
 };
 
 @Injectable()
@@ -68,6 +69,15 @@ export class ProjectRoleGuard implements CanActivate {
           select: { projectId: true },
         });
         projectId = ticket?.projectId ?? null;
+        break;
+      }
+
+      case ResourceType.COLUMN: {
+        const column = await this.prisma.boardColumn.findUnique({
+          where: { id: resourceId },
+          select: { projectId: true },
+        });
+        projectId = column?.projectId ?? null;
         break;
       }
     }

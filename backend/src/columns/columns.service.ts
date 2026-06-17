@@ -6,16 +6,16 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class ColumnsService {
   constructor(private readonly prisma: PrismaService) {}
-  async create(createColumnDto: CreateColumnDto) {
+  async create(projectId: string, createColumnDto: CreateColumnDto) {
     const column = await this.prisma.boardColumn.findFirst({
-      where: { projectId: createColumnDto.projectId },
+      where: { projectId: projectId },
       orderBy: { position: 'desc' },
     });
 
     const newPosition = (column?.position ?? 0) + 1000;
 
     return await this.prisma.boardColumn.create({
-      data: { ...createColumnDto, position: newPosition },
+      data: { ...createColumnDto, position: newPosition, projectId },
     });
   }
 
