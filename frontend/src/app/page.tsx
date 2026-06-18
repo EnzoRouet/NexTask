@@ -43,7 +43,19 @@ export default async function HomePage() {
               </p>
             )}
           </div>
-          {session && <LogoutButton />}
+          {session && (
+            <div className="flex items-center gap-4">
+              {session.user?.role === "ADMIN" && (
+                <Link
+                  href="/admin"
+                  className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
+                >
+                  Centre de Contrôle
+                </Link>
+              )}
+              <LogoutButton />
+            </div>
+          )}
         </header>
 
         {!session ? (
