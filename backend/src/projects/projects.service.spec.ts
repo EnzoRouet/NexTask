@@ -116,12 +116,13 @@ describe('ProjectsService', () => {
             },
           },
           columns: {
+            orderBy: { position: 'asc' },
             include: {
               tickets: {
                 orderBy: { position: 'asc' },
+                include: { assignee: { select: { id: true, name: true } } },
               },
             },
-            orderBy: { position: 'asc' },
           },
         },
       });

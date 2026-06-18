@@ -19,6 +19,9 @@ const mockPrismaService = {
   projectMember: {
     findFirst: jest.fn(),
   },
+  boardColumn: {
+    findUnique: jest.fn(),
+  },
 };
 
 describe('TicketsService', () => {
@@ -187,6 +190,10 @@ describe('TicketsService', () => {
       const updatedTicket = { ...mockTicketWithRelations, ...updateDto };
 
       prisma.ticket.findFirst.mockResolvedValue(mockTicketWithRelations);
+      prisma.boardColumn.findUnique.mockResolvedValue({
+        id: 'col-2',
+        isLocked: false,
+      });
       prisma.ticket.update.mockResolvedValue(updatedTicket);
 
       // Act

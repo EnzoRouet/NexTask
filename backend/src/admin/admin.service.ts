@@ -51,6 +51,7 @@ export class AdminService {
         name: true,
         email: true,
         role: true,
+        createdAt: true,
       },
     });
   }
@@ -66,6 +67,7 @@ export class AdminService {
         name: true,
         email: true,
         role: true,
+        createdAt: true,
       },
     });
   }
