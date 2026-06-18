@@ -7,6 +7,7 @@ import { apiFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Trash2, Loader2, Lock, UserPlus } from "lucide-react";
+import { getAvatarColor, getInitials } from "@/lib/color";
 
 interface TicketCardProps {
   ticket: Ticket;
@@ -121,33 +122,52 @@ export function TicketCard({
         className={`absolute left-0 top-0 bottom-0 w-1 ${getPriorityColor(ticket.priority)}`}
       />
 
-      <div className="flex flex-col gap-2 w-full pl-2 pr-8">
-        <span className="font-medium text-sm flex items-center gap-2">
-          {!canEdit && <Lock className="w-3 h-3 text-neutral-400" />}
-          {ticket.title}
+      <div className="flex flex-col gap-3 w-full pl-2 pr-8">
+        <span className="font-medium text-sm flex items-start gap-2">
+          {!canEdit && (
+            <Lock className="w-3.5 h-3.5 text-neutral-400 shrink-0 mt-0.5" />
+          )}
+          <span className="leading-tight">{ticket.title}</span>
         </span>
 
-        {ticket.assigneeId ? (
-          <span className="text-[10px] uppercase font-bold text-neutral-400">
-            {ticket.assigneeId === currentUser.id
-              ? "Ta tâche"
-              : ticket.assignee?.name || "Assigné"}
-          </span>
-        ) : (
-          <button
-            onClick={handleAssign}
-            onPointerDown={(e) => e.stopPropagation()}
-            disabled={isAssigning}
-            className="text-[10px] uppercase font-bold text-blue-500 hover:text-blue-700 w-fit flex items-center gap-1 transition-colors disabled:opacity-50"
-          >
-            {isAssigning ? (
-              <Loader2 className="w-3 h-3 animate-spin" />
-            ) : (
-              <UserPlus className="w-3 h-3" />
-            )}
-            S&apos;assigner
-          </button>
-        )}
+        <div className="flex items-center gap-2 mt-auto">
+          {ticket.assigneeId ? (
+            <>
+              <div
+                className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-sm"
+                style={{
+                  backgroundColor: getAvatarColor(
+                    ticket.assigneeId,
+                    ticket.assignee?.name,
+                  ),
+                }}
+                title={ticket.assignee?.name || "Membre assigné"}
+              >
+                {getInitials(ticket.assignee?.name)}
+              </div>
+
+              {ticket.assigneeId === currentUser.id && (
+                <span className="text-[10px] uppercase font-bold text-neutral-400">
+                  Ta tâche
+                </span>
+              )}
+            </>
+          ) : (
+            <button
+              onClick={handleAssign}
+              onPointerDown={(e) => e.stopPropagation()}
+              disabled={isAssigning}
+              className="text-[10px] uppercase font-bold text-blue-500 hover:text-blue-700 w-fit flex items-center gap-1 transition-colors disabled:opacity-50"
+            >
+              {isAssigning ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <UserPlus className="w-3 h-3" />
+              )}
+              S&apos;assigner
+            </button>
+          )}
+        </div>
       </div>
 
       <button

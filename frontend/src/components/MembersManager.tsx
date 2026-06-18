@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Users, X, Loader2, ShieldAlert, UserMinus } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { getAvatarColor, getInitials } from "@/lib/color";
 
 interface Member {
   id: string;
@@ -99,15 +100,12 @@ export function MembersManager({
           {members.slice(0, 3).map((m, i) => (
             <div
               key={m.user.id}
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-white z-[${3 - i}] ${
-                i === 0
-                  ? "bg-blue-600"
-                  : i === 1
-                    ? "bg-indigo-500"
-                    : "bg-teal-500"
-              }`}
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-white z-[${3 - i}]`}
+              style={{
+                backgroundColor: getAvatarColor(m.id, m.user.name),
+              }}
             >
-              {m.user.name.charAt(0).toUpperCase()}
+              {getInitials(m.user.name)}
             </div>
           ))}
           {members.length > 3 && (
@@ -157,8 +155,16 @@ export function MembersManager({
                     className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-xl transition-colors group"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold">
-                        {member.user.name.charAt(0).toUpperCase()}
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
+                        style={{
+                          backgroundColor: getAvatarColor(
+                            member.id,
+                            member.user.name,
+                          ),
+                        }}
+                      >
+                        {getInitials(member.user.name)}
                       </div>
                       <div className="flex flex-col">
                         <span className="text-sm font-bold text-gray-900 flex items-center gap-2">

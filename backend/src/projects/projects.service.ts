@@ -79,6 +79,7 @@ export class ProjectsService {
           include: {
             tickets: {
               orderBy: { position: 'asc' },
+              include: { assignee: { select: { id: true, name: true } } },
             },
           },
         },
