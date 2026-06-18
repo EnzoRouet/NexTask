@@ -61,7 +61,11 @@ export class AuthService {
       throw new UnauthorizedException('Identifiants invalides');
     }
 
-    const payload = { sub: userExists.id, email: userExists.email };
+    const payload = {
+      sub: userExists.id,
+      email: userExists.email,
+      role: userExists.role,
+    };
 
     const access_token = await this.jwt.signAsync(payload);
 
