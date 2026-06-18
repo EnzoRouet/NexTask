@@ -11,7 +11,8 @@ import { ProjectRole } from '@prisma/client';
 
 interface AuthenticatedRequest extends Request {
   user: {
-    sub: string;
+    id: string;
+    email?: string;
   };
 }
 
@@ -84,7 +85,7 @@ export class ProjectRoleGuard implements CanActivate {
 
     if (!projectId) return false;
 
-    const userId = request.user.sub;
+    const userId = request.user.id;
 
     const project = await this.prisma.project.findUnique({
       where: { id: projectId },
