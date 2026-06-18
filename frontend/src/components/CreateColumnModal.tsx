@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { BoardColumn } from "@/types/boardColumn";
-import { X, Loader2 } from "lucide-react";
+import { X, Loader2, Lock } from "lucide-react";
 
 interface Props {
   isOpen: boolean;
@@ -21,6 +21,7 @@ export function CreateColumnModal({
   onSuccess,
 }: Readonly<Props>) {
   const [name, setName] = useState("");
+  const [isLocked, setIsLocked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -38,13 +39,14 @@ export function CreateColumnModal({
         `/columns/${projectId}`,
         {
           method: "POST",
-          body: JSON.stringify({ name }),
+          body: JSON.stringify({ name, isLocked }),
         },
         token,
       );
 
       onSuccess(newColumn);
       setName("");
+      setIsLocked(false);
       onClose();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
@@ -89,6 +91,32 @@ export function CreateColumnModal({
               autoFocus
               disabled={isLoading}
             />
+          </div>
+
+          <div className="flex items-start gap-3 mt-2">
+            <div className="flex items-center h-5">
+              <input
+                id="isLocked"
+                type="checkbox"
+                checked={isLocked}
+                onChange={(e) => setIsLocked(e.target.checked)}
+                disabled={isLoading}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label
+                htmlFor="isLocked"
+                className="text-sm font-medium text-gray-700 flex items-center gap-1 cursor-pointer"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                Verrouiller la colonne
+              </label>
+              <p className="text-xs text-gray-500 mt-1">
+                Seul le Product Owner ou le Créateur du projet pourra y déplacer
+                des tickets.
+              </p>
+            </div>
           </div>
 
           <div className="flex justify-end gap-3 mt-4">

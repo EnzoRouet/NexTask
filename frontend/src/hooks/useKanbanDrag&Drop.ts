@@ -86,6 +86,7 @@ const calculateNewPosition = (
 export function useKanbanDragAndDrop(
   initialColumns: BoardColumn[],
   token: string,
+  currentUserRole: string,
 ) {
   const [columns, setColumns] = useState<BoardColumn[]>(initialColumns);
   const [prevInitialColumns, setPrevInitialColumns] =
@@ -115,6 +116,19 @@ export function useKanbanDragAndDrop(
     if (!target) return;
 
     const { targetColumnIndex, realTargetColumnId } = target;
+
+    // Ici on vérifie si la colonne est lock et s'il a le bon role pour le mettre dedans
+    const targetColumn = columns[targetColumnIndex];
+    if (
+      targetColumn.isLocked &&
+      currentUserRole !== "PO" &&
+      currentUserRole !== "OWNER"
+    ) {
+      alert(
+        "Action refusée : Seul un PO ou l'owner peut déplacer un ticket dans cette colonne.",
+      );
+      return;
+    }
 
     const previousColumns = [...columns];
 

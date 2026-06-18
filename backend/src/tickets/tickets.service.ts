@@ -152,7 +152,22 @@ export class TicketsService {
   }
 
   async update(id: string, updateTicketDto: UpdateTicketDto, userId: string) {
-    await this.getTicketAndCheckRights(id, userId);
+    const ticket = await this.getTicketAndCheckRights(id, userId);
+
+    if (updateTicketDto.columnId) {
+      const column = await this.prisma.boardColumn.findUnique({
+        where: { id: updateTicketDto.columnId },
+      });
+
+      const isOwner = ticket.project.ownerId === userId;
+      const isPO = ticket.project.members[0]?.role === 'PO';
+
+      if (column?.isLocked && !isOwner && !isPO) {
+        throw new ForbiddenException(
+          "Vous n'avez pas la permission de déplacer un ticket dans cette colonne",
+        );
+      }
+    }
 
     return await this.prisma.ticket.update({
       where: { id: id },

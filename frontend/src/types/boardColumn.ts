@@ -5,4 +5,5 @@ export interface BoardColumn {
   name: string;
   position: number;
   tickets: Ticket[];
+  isLocked: boolean;
 }

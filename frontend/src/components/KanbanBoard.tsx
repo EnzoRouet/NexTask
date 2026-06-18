@@ -46,9 +46,14 @@ export default function KanbanBoard({
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
 
+  const isOwner = project.ownerId === user.id;
+  const currentMember = project.members?.find((m) => m.userId === user.id);
+  const projectRole = isOwner ? "OWNER" : currentMember?.role || "DEVELOPER";
+
   const { columns, setColumns, handleDragEnd } = useKanbanDragAndDrop(
     project.columns,
     token,
+    projectRole,
   );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
