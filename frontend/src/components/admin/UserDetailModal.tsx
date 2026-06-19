@@ -34,7 +34,11 @@ export default function UserDetailModal({
   useEffect(() => {
     const fetchDetail = async () => {
       try {
-        const data = await apiFetch<UserDetail>(`/admin/${userId}`, {}, token);
+        const data = await apiFetch<UserDetail>(
+          `/admin/users/${userId}`,
+          {},
+          token,
+        );
         setUser(data);
       } catch {
         setMessage({ text: "Erreur de chargement", type: "error" });
@@ -107,6 +111,42 @@ export default function UserDetailModal({
     }
   };
 
+  const handleDeleteUser = async () => {
+    if (
+      !window.confirm(
+        "DANGER : Êtes-vous sûr de vouloir bannir cet utilisateur ? Son compte sera désactivé et son email obfusqué.",
+      )
+    )
+      return;
+
+    try {
+      await apiFetch(
+        `/admin/users/${userId}`,
+        {
+          method: "DELETE",
+        },
+        token,
+      );
+
+      setMessage({
+        text: "Utilisateur supprimé avec succès.",
+        type: "success",
+      });
+
+      onUpdate();
+      setTimeout(() => {
+        onClose();
+      }, 1500);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      setMessage({
+        text: error.message || "Erreur lors de la suppression",
+        type: "error",
+      });
+    }
+  };
+
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) onClose();
   };
@@ -118,7 +158,7 @@ export default function UserDetailModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
-      <div className="bg-[#151921] border border-neutral-800 rounded-xl p-8 w-full max-w-md shadow-2xl relative">
+      <div className="bg-[#151921] border border-neutral-800 rounded-xl p-8 w-full max-w-md shadow-2xl relative max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-neutral-500 hover:text-white transition"
@@ -163,9 +203,28 @@ export default function UserDetailModal({
               />
               <button
                 onClick={handlePasswordReset}
-                className="w-full py-2 bg-red-600 hover:bg-red-700 text-white rounded transition text-sm font-bold"
+                className="w-full py-2 bg-blue-600/10 text-blue-500 hover:bg-blue-600 hover:text-white border border-blue-600/30 rounded transition text-sm font-bold"
               >
                 Réinitialiser l&apos;accès
+              </button>
+            </div>
+          )}
+
+          {/* ZONE DE DANGER */}
+          {userId !== currentUserId && (
+            <div className="p-4 bg-red-950/20 rounded-lg border border-red-900/50">
+              <span className="block text-red-400 font-bold mb-2">
+                Zone de Danger
+              </span>
+              <p className="text-xs text-neutral-500 mb-4">
+                Cette action désactivera le compte instantanément. L&apos;email
+                sera obfusqué dans la base de données.
+              </p>
+              <button
+                onClick={handleDeleteUser}
+                className="w-full py-2 bg-transparent hover:bg-red-600/20 text-red-500 border border-red-900/50 hover:border-red-500/50 rounded transition text-sm font-bold"
+              >
+                Bannir l&apos;utilisateur
               </button>
             </div>
           )}

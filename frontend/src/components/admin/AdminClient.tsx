@@ -1,15 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { apiFetch } from "@/lib/api";
-import UserDetailModal from "./UserDetailModal";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: "USER" | "ADMIN";
-}
+import { useState } from "react";
+import AdminUsersTab from "./AdminUsersTable";
+import AdminProjectsTab from "./AdminProjectsTable";
 
 interface AdminClientProps {
   token: string;
@@ -20,83 +13,40 @@ export default function AdminClient({
   token,
   currentUserId,
 }: Readonly<AdminClientProps>) {
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchUsers = async () => {
-      try {
-        const data = await apiFetch<User[]>("/admin", {}, token);
-        if (isMounted) {
-          setUsers(data);
-        }
-      } catch {
-        console.error("Erreur de récupération des utilisateurs");
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-    fetchUsers();
-    return () => {
-      isMounted = false;
-    };
-  }, [token, refreshTrigger]);
-
-  const handleUserUpdated = () => {
-    setRefreshTrigger((prev) => prev + 1);
-  };
-
-  if (isLoading)
-    return <div className="text-neutral-400">Chargement des systèmes...</div>;
+  const [activeTab, setActiveTab] = useState<"USERS" | "PROJECTS">("USERS");
 
   return (
-    <>
-      <div className="bg-[#151921] rounded-lg border border-neutral-800 overflow-hidden shadow-xl">
-        <table className="w-full text-left">
-          <thead className="bg-[#0D1016] border-b border-neutral-800 text-neutral-400 text-sm uppercase">
-            <tr>
-              <th className="px-6 py-4">Nom</th>
-              <th className="px-6 py-4">Email</th>
-              <th className="px-6 py-4 text-right">Rôle</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-neutral-800 text-neutral-200">
-            {users.map((user) => (
-              <tr
-                key={user.id}
-                onClick={() => setSelectedUserId(user.id)}
-                className="hover:bg-neutral-800/50 transition-colors cursor-pointer"
-              >
-                <td className="px-6 py-4 font-medium">{user.name}</td>
-                <td className="px-6 py-4 text-neutral-400">{user.email}</td>
-                <td className="px-6 py-4 text-right">
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-bold ${user.role === "ADMIN" ? "bg-red-500/20 text-red-500" : "bg-blue-500/20 text-blue-500"}`}
-                  >
-                    {user.role}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="space-y-6">
+      <div className="flex space-x-4 border-b border-neutral-800 pb-4">
+        <button
+          onClick={() => setActiveTab("USERS")}
+          className={`px-4 py-2 font-semibold rounded-t-lg transition-colors ${
+            activeTab === "USERS"
+              ? "text-white border-b-2 border-blue-500"
+              : "text-neutral-500 hover:text-neutral-300"
+          }`}
+        >
+          Utilisateurs
+        </button>
+        <button
+          onClick={() => setActiveTab("PROJECTS")}
+          className={`px-4 py-2 font-semibold rounded-t-lg transition-colors ${
+            activeTab === "PROJECTS"
+              ? "text-white border-b-2 border-blue-500"
+              : "text-neutral-500 hover:text-neutral-300"
+          }`}
+        >
+          Projets & Modération
+        </button>
       </div>
 
-      {selectedUserId && (
-        <UserDetailModal
-          userId={selectedUserId}
-          token={token}
-          currentUserId={currentUserId}
-          onClose={() => setSelectedUserId(null)}
-          onUpdate={handleUserUpdated}
-        />
+      {activeTab === "USERS" && (
+        <AdminUsersTab token={token} currentUserId={currentUserId} />
       )}
-    </>
+
+      {activeTab === "PROJECTS" && (
+        <AdminProjectsTab token={token} currentUserId={currentUserId} />
+      )}
+    </div>
   );
 }
