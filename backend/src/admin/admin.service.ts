@@ -8,13 +8,14 @@ export class AdminService {
   constructor(private readonly prisma: PrismaService) {}
 
   findAll() {
-    return this.prisma.user.findMany({
+    return this.prisma.deleteFilter.user.findMany({
       select: {
         id: true,
         name: true,
         email: true,
         role: true,
         createdAt: true,
+        deletedAt: true,
       },
       orderBy: {
         createdAt: 'desc',
@@ -23,7 +24,7 @@ export class AdminService {
   }
 
   async findOne(userId: string) {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.deleteFilter.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -31,6 +32,7 @@ export class AdminService {
         email: true,
         role: true,
         createdAt: true,
+        deletedAt: true,
       },
     });
 
@@ -68,6 +70,25 @@ export class AdminService {
         email: true,
         role: true,
         createdAt: true,
+      },
+    });
+  }
+
+  async removeUser(userId: string) {
+    const user = await this.findOne(userId);
+
+    if (!user || user.deletedAt) {
+      throw new NotFoundException('Utilisateur introuvable ou déjà supprimé');
+    }
+
+    // On va juste obfusquer le mail de la personne pour qu'elle puisse se register de nouveau avec
+    const obfuscatedEmail = `deleted_${Date.now()}_${user.email}`;
+
+    return await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        deletedAt: new Date(),
+        email: obfuscatedEmail,
       },
     });
   }

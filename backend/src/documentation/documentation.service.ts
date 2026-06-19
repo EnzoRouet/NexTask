@@ -11,7 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class DocumentationService {
   constructor(private readonly prisma: PrismaService) {}
   private async checkProjectAccess(projectId: string, userId: string) {
-    return await this.prisma.project.findFirst({
+    return await this.prisma.deleteFilter.project.findFirst({
       where: {
         id: projectId,
         OR: [

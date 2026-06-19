@@ -1,0 +1,8 @@
+-- AlterEnum
+ALTER TYPE "ProjectRole" ADD VALUE 'OWNER';
+
+-- AlterTable
+ALTER TABLE "Project" ADD COLUMN     "deletedAt" TIMESTAMP(3);
+
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "deletedAt" TIMESTAMP(3);

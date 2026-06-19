@@ -28,7 +28,7 @@ export class ProjectsService {
   }
 
   async findAll(userId: string) {
-    return await this.prisma.project.findMany({
+    return await this.prisma.deleteFilter.project.findMany({
       where: {
         OR: [
           { ownerId: userId },
@@ -45,7 +45,7 @@ export class ProjectsService {
   }
 
   async findOne(id: string, userId: string) {
-    const response = await this.prisma.project.findFirst({
+    const response = await this.prisma.deleteFilter.project.findFirst({
       where: {
         id: id,
         OR: [
@@ -98,7 +98,7 @@ export class ProjectsService {
   }
 
   async remove(id: string, userId: string) {
-    const response = await this.prisma.project.findFirst({
+    const response = await this.prisma.deleteFilter.project.findFirst({
       where: {
         id: id,
         ownerId: userId,
@@ -111,6 +111,11 @@ export class ProjectsService {
       );
     }
 
-    return await this.prisma.project.delete({ where: { id: id } });
+    return await this.prisma.deleteFilter.project.update({
+      where: { id: userId },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
   }
 }

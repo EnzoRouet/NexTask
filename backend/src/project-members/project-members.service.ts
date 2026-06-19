@@ -16,7 +16,7 @@ export class ProjectMembersService {
     createProjectMemberDto: CreateProjectMemberDto,
     requesterId: string,
   ) {
-    const project = await this.prisma.project.findUnique({
+    const project = await this.prisma.deleteFilter.project.findUnique({
       where: { id: projectId },
       include: {
         members: {
@@ -50,7 +50,7 @@ export class ProjectMembersService {
       );
     }
 
-    const targetUser = await this.prisma.user.findUnique({
+    const targetUser = await this.prisma.deleteFilter.user.findUnique({
       where: {
         email: createProjectMemberDto.email,
       },
@@ -81,7 +81,7 @@ export class ProjectMembersService {
   }
 
   async findAll(projectId: string) {
-    const project = await this.prisma.project.findUnique({
+    const project = await this.prisma.deleteFilter.project.findUnique({
       where: { id: projectId },
       include: {
         owner: {
@@ -121,7 +121,7 @@ export class ProjectMembersService {
     newRole: ProjectRole,
     requesterId: string,
   ) {
-    const project = await this.prisma.project.findUnique({
+    const project = await this.prisma.deleteFilter.project.findUnique({
       where: { id: projectId },
       include: {
         members: {
@@ -162,7 +162,7 @@ export class ProjectMembersService {
   }
 
   async remove(projectId: string, targetUserId: string, requesterId: string) {
-    const project = await this.prisma.project.findUnique({
+    const project = await this.prisma.deleteFilter.project.findUnique({
       where: { id: projectId },
       include: {
         members: {

@@ -42,7 +42,7 @@ export class AuthService {
   }
 
   async login(loginDTO: LoginDto) {
-    const userExists = await this.prisma.user.findUnique({
+    const userExists = await this.prisma.deleteFilter.user.findUnique({
       where: {
         email: loginDTO.email,
       },
