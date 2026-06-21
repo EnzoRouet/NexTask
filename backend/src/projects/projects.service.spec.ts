@@ -8,10 +8,14 @@ import type { UpdateProjectDto } from './dto/update-project.dto';
 const mockPrismaService = {
   project: {
     create: jest.fn(),
-    findMany: jest.fn(),
-    findFirst: jest.fn(),
     update: jest.fn(),
-    delete: jest.fn(),
+  },
+  deleteFilter: {
+    project: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      update: jest.fn(),
+    },
   },
 };
 
@@ -72,14 +76,14 @@ describe('ProjectsService', () => {
     it('should return the list of projects where the user is owner or member', async () => {
       // Arrange
       const expectedProjects = [{ id: 'uuid-1', name: 'Test' }];
-      prisma.project.findMany.mockResolvedValue(expectedProjects);
+      prisma.deleteFilter.project.findMany.mockResolvedValue(expectedProjects);
 
       // Act
       const result = await service.findAll(userId);
 
       // Assert
       expect(result).toEqual(expectedProjects);
-      expect(prisma.project.findMany).toHaveBeenCalledWith({
+      expect(prisma.deleteFilter.project.findMany).toHaveBeenCalledWith({
         where: {
           OR: [{ ownerId: userId }, { members: { some: { userId: userId } } }],
         },
@@ -92,14 +96,14 @@ describe('ProjectsService', () => {
       // Arrange
       const id = 'uuid-1';
       const expectedProject = { id, name: 'Test' };
-      prisma.project.findFirst.mockResolvedValue(expectedProject);
+      prisma.deleteFilter.project.findFirst.mockResolvedValue(expectedProject);
 
       // Act
       const result = await service.findOne(id, userId);
 
       // Assert
       expect(result).toEqual(expectedProject);
-      expect(prisma.project.findFirst).toHaveBeenCalledWith({
+      expect(prisma.deleteFilter.project.findFirst).toHaveBeenCalledWith({
         where: {
           id: id,
           OR: [{ ownerId: userId }, { members: { some: { userId: userId } } }],
@@ -130,7 +134,7 @@ describe('ProjectsService', () => {
 
     it('should throw a NotFoundException if the project does not exist or access is denied', async () => {
       // Arrange
-      prisma.project.findFirst.mockResolvedValue(null);
+      prisma.deleteFilter.project.findFirst.mockResolvedValue(null);
 
       // Act & Assert
       await expect(service.findOne('invalid-id', userId)).rejects.toThrow(
@@ -147,7 +151,7 @@ describe('ProjectsService', () => {
       const existingProject = { id, name: 'Test', ownerId: userId };
       const updatedProject = { ...existingProject, ...updateDto };
 
-      prisma.project.findFirst.mockResolvedValue(existingProject);
+      prisma.deleteFilter.project.findFirst.mockResolvedValue(existingProject);
       prisma.project.update.mockResolvedValue(updatedProject);
 
       // Act
@@ -163,34 +167,40 @@ describe('ProjectsService', () => {
   });
 
   describe('remove', () => {
-    it('should delete the project if the user is the strict owner', async () => {
+    it('should soft delete the project if the user is the strict owner', async () => {
       // Arrange
+      const fixedDate = new Date('2026-06-21T12:00:00Z');
+      jest.useFakeTimers().setSystemTime(fixedDate);
+
       const id = 'uuid-1';
       const existingProject = { id, name: 'Test', ownerId: userId };
+      const deletedProject = { ...existingProject, deletedAt: fixedDate };
 
-      prisma.project.findFirst.mockResolvedValue(existingProject);
-      prisma.project.delete.mockResolvedValue(existingProject);
+      prisma.deleteFilter.project.findFirst.mockResolvedValue(existingProject);
+      prisma.deleteFilter.project.update.mockResolvedValue(deletedProject);
 
       // Act
       const result = await service.remove(id, userId);
 
       // Assert
-      expect(result).toEqual(existingProject);
-      expect(prisma.project.findFirst).toHaveBeenCalledWith({
-        where: { id: id, ownerId: userId },
+      expect(result).toEqual(deletedProject);
+      expect(prisma.deleteFilter.project.update).toHaveBeenCalledWith({
+        where: { id: userId },
+        data: { deletedAt: fixedDate },
       });
-      expect(prisma.project.delete).toHaveBeenCalledWith({ where: { id } });
+
+      jest.useRealTimers(); // ⏱️ On remet l'horloge normale à la fin du test
     });
 
     it('should throw a ForbiddenException if the user tries to delete a project they do not own', async () => {
       // Arrange
-      prisma.project.findFirst.mockResolvedValue(null);
+      prisma.deleteFilter.project.findFirst.mockResolvedValue(null);
 
       // Act & Assert
       await expect(service.remove('uuid-1', userId)).rejects.toThrow(
         ForbiddenException,
       );
-      expect(prisma.project.delete).not.toHaveBeenCalled();
+      expect(prisma.deleteFilter.project.update).not.toHaveBeenCalled();
     });
   });
 });

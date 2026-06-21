@@ -14,8 +14,11 @@ const mockPrismaService = {
   user: {
     findUnique: jest.fn(),
     create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
+  },
+  deleteFilter: {
+    user: {
+      findUnique: jest.fn(),
+    },
   },
 };
 
@@ -50,7 +53,7 @@ describe('AuthService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should throw a ConflictException if email already exists', async () => {
+  it('should throw a ConflictException if email already exists during registration', async () => {
     // Arrange
     const mockUserArray = {
       id: 1,
@@ -92,7 +95,6 @@ describe('AuthService', () => {
 
     prisma.user.findUnique.mockResolvedValue(null);
     prisma.user.create.mockResolvedValue(expectedUser);
-    // On utilise notre mock bcrypt pour un test hash rapide
     (bcrypt.hash as jest.Mock).mockResolvedValue('faux_hash_rapide');
 
     // Act
@@ -103,13 +105,13 @@ describe('AuthService', () => {
     expect(prisma.user.findUnique).toHaveBeenCalledTimes(1);
   });
 
-  it('should throw an UnauthorizedException if user does not exist', async () => {
+  it('should throw an UnauthorizedException if user does not exist during login', async () => {
     // Arrange
     const loginDTO: LoginDto = {
       email: 'test@gmail.com',
       password: '01234567890',
     };
-    prisma.user.findUnique.mockResolvedValue(null);
+    prisma.deleteFilter.user.findUnique.mockResolvedValue(null);
 
     // Act & Assert
     await expect(service.login(loginDTO)).rejects.toThrow(
@@ -131,7 +133,7 @@ describe('AuthService', () => {
       password: '01234569283729017',
     };
 
-    prisma.user.findUnique.mockResolvedValue(mockUserArray);
+    prisma.deleteFilter.user.findUnique.mockResolvedValue(mockUserArray);
     (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
     // Act & Assert
@@ -140,13 +142,14 @@ describe('AuthService', () => {
     );
   });
 
-  it('should successfuly connect the user', async () => {
+  it('should successfully connect the user', async () => {
     // Arrange
     const mockUserArray = {
       id: 1,
       email: 'test@gmail.com',
       name: 'Enzo',
       password: 'mot_de_passe_haché',
+      role: 'USER',
     };
 
     const loginTestDTO: LoginDto = {
@@ -157,9 +160,10 @@ describe('AuthService', () => {
     const expectedPayload = {
       sub: mockUserArray.id,
       email: mockUserArray.email,
+      role: mockUserArray.role,
     };
 
-    prisma.user.findUnique.mockResolvedValue(mockUserArray);
+    prisma.deleteFilter.user.findUnique.mockResolvedValue(mockUserArray);
     (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -173,7 +177,7 @@ describe('AuthService', () => {
       user: expectedUser,
       access_token: 'faux_token_jwt_pour_le_test',
     });
-    expect(prisma.user.findUnique).toHaveBeenCalledTimes(1);
+    expect(prisma.deleteFilter.user.findUnique).toHaveBeenCalledTimes(1);
     expect(jest.spyOn(jwt, 'signAsync')).toHaveBeenCalledWith(expectedPayload);
   });
 });

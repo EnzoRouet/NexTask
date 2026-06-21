@@ -7,15 +7,17 @@ describe('DocumentationService', () => {
   let service: DocumentationService;
 
   const mockPrismaService = {
-    project: {
-      findFirst: jest.fn(),
-    },
     doc: {
       create: jest.fn(),
       findMany: jest.fn(),
       findUnique: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+    },
+    deleteFilter: {
+      project: {
+        findFirst: jest.fn(),
+      },
     },
   };
 
@@ -49,14 +51,18 @@ describe('DocumentationService', () => {
       const mockProjectAccess = { id: 'project-456', ownerId: 'user-123' };
       const expectedCreatedDoc = { id: 'doc-789', ...createDto };
 
-      mockPrismaService.project.findFirst.mockResolvedValue(mockProjectAccess);
+      mockPrismaService.deleteFilter.project.findFirst.mockResolvedValue(
+        mockProjectAccess,
+      );
       mockPrismaService.doc.create.mockResolvedValue(expectedCreatedDoc);
 
       // Act
       const result = await service.create(createDto, mockUserId);
 
       // Assert
-      expect(mockPrismaService.project.findFirst).toHaveBeenCalledTimes(1);
+      expect(
+        mockPrismaService.deleteFilter.project.findFirst,
+      ).toHaveBeenCalledTimes(1);
       expect(mockPrismaService.doc.create).toHaveBeenCalledWith({
         data: createDto,
       });
@@ -68,7 +74,7 @@ describe('DocumentationService', () => {
       const mockUserId = 'hacker-123';
       const createDto = { title: 'Hacked Wiki', projectId: 'project-456' };
 
-      mockPrismaService.project.findFirst.mockResolvedValue(null);
+      mockPrismaService.deleteFilter.project.findFirst.mockResolvedValue(null);
 
       // Act & Assert
       await expect(service.create(createDto, mockUserId)).rejects.toThrow(
@@ -91,7 +97,9 @@ describe('DocumentationService', () => {
       const mockProjectAccess = { id: 'project-456' };
 
       mockPrismaService.doc.findUnique.mockResolvedValue(mockDatabaseDocument);
-      mockPrismaService.project.findFirst.mockResolvedValue(mockProjectAccess);
+      mockPrismaService.deleteFilter.project.findFirst.mockResolvedValue(
+        mockProjectAccess,
+      );
 
       // Act
       const result = await service.findOne(mockDocumentId, mockUserId);
@@ -100,7 +108,9 @@ describe('DocumentationService', () => {
       expect(mockPrismaService.doc.findUnique).toHaveBeenCalledWith({
         where: { id: mockDocumentId },
       });
-      expect(mockPrismaService.project.findFirst).toHaveBeenCalledTimes(1);
+      expect(
+        mockPrismaService.deleteFilter.project.findFirst,
+      ).toHaveBeenCalledTimes(1);
       expect(result).toEqual(mockDatabaseDocument);
     });
 
@@ -115,7 +125,9 @@ describe('DocumentationService', () => {
       await expect(
         service.findOne(wrongDocumentId, mockUserId),
       ).rejects.toThrow(NotFoundException);
-      expect(mockPrismaService.project.findFirst).not.toHaveBeenCalled();
+      expect(
+        mockPrismaService.deleteFilter.project.findFirst,
+      ).not.toHaveBeenCalled();
     });
 
     it('should throw a ForbiddenException when the user requests an existing document from a project they do not belong to', async () => {
@@ -128,7 +140,7 @@ describe('DocumentationService', () => {
       };
 
       mockPrismaService.doc.findUnique.mockResolvedValue(mockDatabaseDocument);
-      mockPrismaService.project.findFirst.mockResolvedValue(null);
+      mockPrismaService.deleteFilter.project.findFirst.mockResolvedValue(null);
 
       // Act & Assert
       await expect(service.findOne(mockDocumentId, mockUserId)).rejects.toThrow(

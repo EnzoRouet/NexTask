@@ -10,9 +10,6 @@ import { CreateProjectMemberDto } from './dto/create-project-member.dto';
 import { ProjectRole } from '@prisma/client';
 
 const mockPrismaService = {
-  project: {
-    findUnique: jest.fn(),
-  },
   projectMember: {
     findFirst: jest.fn(),
     findMany: jest.fn(),
@@ -20,8 +17,13 @@ const mockPrismaService = {
     update: jest.fn(),
     delete: jest.fn(),
   },
-  user: {
-    findUnique: jest.fn(),
+  deleteFilter: {
+    project: {
+      findUnique: jest.fn(),
+    },
+    user: {
+      findUnique: jest.fn(),
+    },
   },
 };
 
@@ -62,12 +64,12 @@ describe('ProjectMembersService', () => {
 
     it('should successfully add a new member if requester has rights and user exists', async () => {
       // Arrange
-      prisma.project.findUnique.mockResolvedValue({
+      prisma.deleteFilter.project.findUnique.mockResolvedValue({
         id: projectId,
         ownerId: requesterId,
         members: [],
       });
-      prisma.user.findUnique.mockResolvedValue({
+      prisma.deleteFilter.user.findUnique.mockResolvedValue({
         id: targetUserId,
         email: targetEmail,
       });
@@ -93,7 +95,7 @@ describe('ProjectMembersService', () => {
 
     it('should throw a NotFoundException if the project does not exist', async () => {
       // Arrange
-      prisma.project.findUnique.mockResolvedValue(null);
+      prisma.deleteFilter.project.findUnique.mockResolvedValue(null);
 
       // Act & Assert
       await expect(
@@ -109,7 +111,7 @@ describe('ProjectMembersService', () => {
         role: ProjectRole.PO,
       };
 
-      prisma.project.findUnique.mockResolvedValue({
+      prisma.deleteFilter.project.findUnique.mockResolvedValue({
         id: projectId,
         ownerId: 'someone-else',
         members: [{ userId: devRequesterId, role: ProjectRole.DEVELOPER }],
@@ -123,12 +125,12 @@ describe('ProjectMembersService', () => {
 
     it('should throw a NotFoundException if the target user email does not exist in the database', async () => {
       // Arrange
-      prisma.project.findUnique.mockResolvedValue({
+      prisma.deleteFilter.project.findUnique.mockResolvedValue({
         id: projectId,
         ownerId: requesterId,
         members: [],
       });
-      prisma.user.findUnique.mockResolvedValue(null);
+      prisma.deleteFilter.user.findUnique.mockResolvedValue(null);
 
       // Act & Assert
       await expect(
@@ -138,12 +140,12 @@ describe('ProjectMembersService', () => {
 
     it('should throw a ConflictException if the target user is already a member of the project', async () => {
       // Arrange
-      prisma.project.findUnique.mockResolvedValue({
+      prisma.deleteFilter.project.findUnique.mockResolvedValue({
         id: projectId,
         ownerId: requesterId,
         members: [],
       });
-      prisma.user.findUnique.mockResolvedValue({
+      prisma.deleteFilter.user.findUnique.mockResolvedValue({
         id: targetUserId,
         email: targetEmail,
       });
@@ -169,7 +171,7 @@ describe('ProjectMembersService', () => {
         { id: 'member-1', user: { id: 'user-2', name: 'Bob' } },
       ];
 
-      prisma.project.findUnique.mockResolvedValue(mockProject);
+      prisma.deleteFilter.project.findUnique.mockResolvedValue(mockProject);
       prisma.projectMember.findMany.mockResolvedValue(mockMembers);
 
       // Act
@@ -187,7 +189,7 @@ describe('ProjectMembersService', () => {
         },
         ...mockMembers,
       ]);
-      expect(prisma.project.findUnique).toHaveBeenCalledWith({
+      expect(prisma.deleteFilter.project.findUnique).toHaveBeenCalledWith({
         where: { id: projectId },
         include: {
           owner: { select: { id: true, name: true } },
@@ -197,7 +199,7 @@ describe('ProjectMembersService', () => {
 
     it('should throw a NotFoundException if the project does not exist', async () => {
       // Arrange
-      prisma.project.findUnique.mockResolvedValue(null);
+      prisma.deleteFilter.project.findUnique.mockResolvedValue(null);
 
       // Act & Assert
       await expect(service.findAll(projectId)).rejects.toThrow(
@@ -207,7 +209,7 @@ describe('ProjectMembersService', () => {
   });
 
   describe('remove', () => {
-    it('should successfully remove a member if requester has higher weight (PO kicks DEV)', async () => {
+    it('should successfully remove a member if requester has higher weight', async () => {
       // Arrange
       const poRequesterId = 'po-123';
       const devTargetId = 'dev-456';
@@ -225,7 +227,7 @@ describe('ProjectMembersService', () => {
         role: ProjectRole.DEVELOPER,
       };
 
-      prisma.project.findUnique.mockResolvedValue(projectMock);
+      prisma.deleteFilter.project.findUnique.mockResolvedValue(projectMock);
       prisma.projectMember.findFirst.mockResolvedValue(targetMemberMock);
       prisma.projectMember.delete.mockResolvedValue(targetMemberMock);
 
@@ -254,7 +256,7 @@ describe('ProjectMembersService', () => {
         members: [{ userId: poRequesterId, role: ProjectRole.PO }],
       };
 
-      prisma.project.findUnique.mockResolvedValue(projectMock);
+      prisma.deleteFilter.project.findUnique.mockResolvedValue(projectMock);
 
       // Act & Assert
       await expect(
@@ -262,7 +264,7 @@ describe('ProjectMembersService', () => {
       ).rejects.toThrow(ForbiddenException);
     });
 
-    it('should throw ForbiddenException if requester weight is equal or lower than target weight (DEV kicks PO)', async () => {
+    it('should throw ForbiddenException if requester weight is equal or lower than target weight', async () => {
       // Arrange
       const devRequesterId = 'dev-123';
       const poTargetId = 'po-456';
@@ -280,7 +282,7 @@ describe('ProjectMembersService', () => {
         role: ProjectRole.PO,
       };
 
-      prisma.project.findUnique.mockResolvedValue(projectMock);
+      prisma.deleteFilter.project.findUnique.mockResolvedValue(projectMock);
       prisma.projectMember.findFirst.mockResolvedValue(targetMemberMock);
 
       // Act & Assert
