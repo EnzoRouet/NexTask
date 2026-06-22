@@ -9,9 +9,7 @@ import { JwtStrategy } from './jwt.strategy';
   imports: [
     JwtModule.registerAsync({
       inject: [ConfigService],
-      // On laisse le async même si on s'en sert pas pour prévenir le serv de renvoyer une promesse et quil attende un peu
-      // eslint-disable-next-line @typescript-eslint/require-await
-      useFactory: async (configService: ConfigService) => {
+      useFactory: (configService: ConfigService) => {
         return {
           secret: configService.get<string>('JWT_SECRET'),
           signOptions: { expiresIn: '1h' },
@@ -21,5 +19,6 @@ import { JwtStrategy } from './jwt.strategy';
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
+  exports: [JwtModule],
 })
 export class AuthModule {}
