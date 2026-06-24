@@ -14,6 +14,7 @@ interface TicketCardProps {
   ticket: Ticket;
   token: string;
   currentUser: { id: string; role: string };
+  projectRole: "OWNER" | "PO" | "DEVELOPER";
   onTicketClick: (ticket: Ticket) => void;
 }
 
@@ -21,6 +22,7 @@ export function TicketCard({
   ticket,
   token,
   currentUser,
+  projectRole,
   onTicketClick,
 }: Readonly<TicketCardProps>) {
   const router = useRouter();
@@ -28,8 +30,10 @@ export function TicketCard({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
 
+  const isSuperVisor = projectRole === "OWNER" || projectRole === "PO";
+
   const canEdit =
-    currentUser.role === "ADMIN" ||
+    isSuperVisor ||
     (!ticket.column?.isLocked &&
       (!ticket.assigneeId || ticket.assigneeId === currentUser.id));
 
