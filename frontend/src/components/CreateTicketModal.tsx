@@ -8,6 +8,7 @@ import {
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import { Ticket } from "@/types/tickets";
+import { useSocket } from "@/providers/socket.provider";
 
 interface CreateTicketModalProps {
   isOpen: boolean;
@@ -40,14 +41,21 @@ export function CreateTicketModal({
   });
 
   const router = useRouter();
+  const { socket } = useSocket();
 
   const onSubmit = async (data: CreateTicketDto) => {
     try {
-      await apiFetch<Ticket>(
+      const newTicket = await apiFetch<Ticket>(
         "/tickets",
         { method: "POST", body: JSON.stringify({ ...data, columnId }) },
         token,
       );
+
+      socket?.emit("create_ticket", {
+        projectId,
+        columnId,
+        ticket: newTicket,
+      });
 
       reset();
       onClose();

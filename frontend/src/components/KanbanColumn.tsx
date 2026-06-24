@@ -14,6 +14,7 @@ interface KanbanColumnProps {
   column: BoardColumn;
   token: string;
   user: User;
+  projectRole: "OWNER" | "PO" | "DEVELOPER";
   onTicketClick: (ticket: Ticket) => void;
 }
 
@@ -21,6 +22,7 @@ export default function KanbanColumn({
   column,
   token,
   user,
+  projectRole,
   onTicketClick,
 }: Readonly<KanbanColumnProps>) {
   const router = useRouter();
@@ -70,6 +72,7 @@ export default function KanbanColumn({
               ticket={ticket}
               token={token}
               currentUser={user}
+              projectRole={projectRole}
               onTicketClick={onTicketClick}
             />
           ))}

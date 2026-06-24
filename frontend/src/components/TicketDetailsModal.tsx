@@ -5,6 +5,7 @@ import { Ticket } from "@/types/tickets";
 import { apiFetch } from "@/lib/api";
 import { X, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useSocket } from "@/providers/socket.provider";
 
 export type Priority = "LOW" | "MEDIUM" | "HIGH";
 
@@ -30,6 +31,7 @@ export function TicketDetailsModal({
   token,
 }: Readonly<TicketDetailsModalProps>) {
   const router = useRouter();
+  const { socket } = useSocket();
 
   const [projectMembers, setProjectMembers] = useState<ProjectMemberResponse[]>(
     [],
@@ -90,7 +92,7 @@ export function TicketDetailsModal({
     setAssigneeId(payloadUserId);
 
     try {
-      await apiFetch(
+      const updatedTicket = await apiFetch<Ticket>(
         `/tickets/${ticket.id}/assign`,
         {
           method: "PATCH",
@@ -98,6 +100,15 @@ export function TicketDetailsModal({
         },
         token,
       );
+
+      socket?.emit("assign_ticket", {
+        projectId: ticket.projectId,
+        columnId: ticket.columnId,
+        ticketId: ticket.id,
+        assigneeId: updatedTicket.assigneeId,
+        assignee: updatedTicket.assignee,
+      });
+
       router.refresh();
     } catch {
       setErrorMessage("Impossible d'assigner le ticket.");
@@ -125,6 +136,14 @@ export function TicketDetailsModal({
         },
         token,
       );
+
+      socket?.emit("update_ticket", {
+        projectId: ticket.projectId,
+        columnId: ticket.columnId,
+        ticketId: ticket.id,
+        updates: { [field]: value },
+      });
+
       router.refresh();
     } catch {
       if (field === "title") setTitle(ticket.title);
