@@ -51,6 +51,7 @@ export default function KanbanBoard({
   const projectRole = isOwner ? "OWNER" : currentMember?.role || "DEVELOPER";
 
   const { columns, setColumns, handleDragEnd } = useKanbanDragAndDrop(
+    project.id,
     project.columns,
     token,
     projectRole,
@@ -68,12 +69,6 @@ export default function KanbanBoard({
         return;
       }
     }
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onDragEndWrapper = (event: any) => {
-    setActiveTicket(null);
-    handleDragEnd(event);
   };
 
   return (
@@ -105,7 +100,10 @@ export default function KanbanBoard({
         <DndContext
           sensors={sensors}
           onDragStart={handleDragStart}
-          onDragEnd={onDragEndWrapper}
+          onDragEnd={(event) => {
+            setActiveTicket(null);
+            handleDragEnd(event);
+          }}
           id="kanban-board"
         >
           {columns.map((column) => (
@@ -114,31 +112,31 @@ export default function KanbanBoard({
               column={column}
               token={token}
               user={user}
+              projectRole={projectRole}
               onTicketClick={setSelectedTicket}
             />
           ))}
 
-          {/* 6. Le composant magique qui survole le DOM */}
           <DragOverlay>
             {activeTicket ? (
               <TicketCard
                 ticket={activeTicket}
                 token={token}
                 currentUser={user}
-                onTicketClick={() => {}} // On désactive le clic pendant qu'il vole
+                projectRole={projectRole}
+                onTicketClick={() => {}}
               />
             ) : null}
           </DragOverlay>
         </DndContext>
       </div>
 
-      {/* ... (Tes modales restent identiques) ... */}
       <CreateTicketModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         projectId={project.id}
         token={token}
-        columnId={project.columns[0]?.id || ""}
+        columnId={columns[0]?.id || ""}
       />
 
       <CreateColumnModal

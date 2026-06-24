@@ -8,11 +8,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Trash2, Loader2, Lock, UserPlus } from "lucide-react";
 import { getAvatarColor, getInitials } from "@/lib/color";
+import { useSocket } from "@/providers/socket.provider";
 
 interface TicketCardProps {
   ticket: Ticket;
   token: string;
   currentUser: { id: string; role: string };
+  projectRole: "OWNER" | "PO" | "DEVELOPER";
   onTicketClick: (ticket: Ticket) => void;
 }
 
@@ -20,14 +22,18 @@ export function TicketCard({
   ticket,
   token,
   currentUser,
+  projectRole,
   onTicketClick,
 }: Readonly<TicketCardProps>) {
   const router = useRouter();
+  const { socket } = useSocket();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
 
+  const isSuperVisor = projectRole === "OWNER" || projectRole === "PO";
+
   const canEdit =
-    currentUser.role === "ADMIN" ||
+    isSuperVisor ||
     (!ticket.column?.isLocked &&
       (!ticket.assigneeId || ticket.assigneeId === currentUser.id));
 
@@ -63,6 +69,13 @@ export function TicketCard({
 
     try {
       await apiFetch(`/tickets/${ticket.id}`, { method: "DELETE" }, token);
+
+      socket?.emit("delete_ticket", {
+        projectId: ticket.projectId,
+        columnId: ticket.columnId,
+        ticketId: ticket.id,
+      });
+
       router.refresh();
     } catch (error) {
       console.error("Erreur système :", error);
@@ -76,7 +89,7 @@ export function TicketCard({
     setIsAssigning(true);
 
     try {
-      await apiFetch(
+      const updatedTicket = await apiFetch<Ticket>(
         `/tickets/${ticket.id}/assign`,
         {
           method: "PATCH",
@@ -84,6 +97,15 @@ export function TicketCard({
         },
         token,
       );
+
+      socket?.emit("assign_ticket", {
+        projectId: ticket.projectId,
+        columnId: ticket.columnId,
+        ticketId: ticket.id,
+        assigneeId: updatedTicket.assigneeId,
+        assignee: updatedTicket.assignee,
+      });
+
       router.refresh();
     } catch (error) {
       console.error("Erreur système :", error);
