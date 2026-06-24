@@ -21,6 +21,27 @@ export interface TicketCreatedPayload {
   ticket: Ticket;
 }
 
+export interface TicketDeletedPayload {
+  projectId: string;
+  columnId: string;
+  ticketId: string;
+}
+
+export interface TicketUpdatedPayload {
+  projectId: string;
+  columnId: string;
+  ticketId: string;
+  updates: Partial<Ticket>;
+}
+
+export interface TicketAssignedPayload {
+  projectId: string;
+  columnId: string;
+  ticketId: string;
+  assigneeId: string | null;
+  assignee?: { id: string; name: string };
+}
+
 interface TicketIndex {
   sourceColumnIndex: number;
   ticketToMove: Ticket | undefined;
@@ -151,9 +172,35 @@ const addTicketToColumn = (
 
     return {
       ...col,
+      // Le spread operator (...) permet d'ajouter le ticket sans casser l'immuabilité de React
       tickets: [...col.tickets, newTicket],
     };
   });
+};
+
+const deleteTicketFromBoard = (
+  columns: BoardColumn[],
+  ticketId: string,
+): BoardColumn[] => {
+  return columns.map((col) => ({
+    ...col,
+    // On dégage le ticket visuellement en gardant tous ceux qui n'ont pas son ID
+    tickets: col.tickets.filter((t) => t.id !== ticketId),
+  }));
+};
+
+const modifyTicketInBoard = (
+  columns: BoardColumn[],
+  ticketId: string,
+  updates: Partial<Ticket>,
+): BoardColumn[] => {
+  return columns.map((col) => ({
+    ...col,
+    // On cherche le ticket ciblé : si c'est lui, on fusionne l'ancien avec les modifs, sinon on n'y touche pas
+    tickets: col.tickets.map((t) =>
+      t.id === ticketId ? { ...t, ...updates } : t,
+    ),
+  }));
 };
 
 export function useKanbanDragAndDrop(
@@ -182,6 +229,7 @@ export function useKanbanDragAndDrop(
       if (payload.projectId !== projectId) return;
 
       setColumns((prevColumns) => {
+        // On retire le ticket bougé par le collègue de son ancienne colonne
         const { cleanColumns, extractedTicket } = removeTicketFromColumns(
           prevColumns,
           payload.ticketId,
@@ -189,6 +237,7 @@ export function useKanbanDragAndDrop(
 
         if (!extractedTicket) return prevColumns;
 
+        // On injecte le ticket dans la nouvelle colonne et on trie direct pour que l'affichage reste clean
         return insertAndSortTicketInColumn(
           cleanColumns,
           extractedTicket,
@@ -200,16 +249,43 @@ export function useKanbanDragAndDrop(
 
     socket.on("ticket_created", (payload: TicketCreatedPayload) => {
       if (payload.projectId !== projectId) return;
-
-      setColumns((prevColumns) => {
-        return addTicketToColumn(prevColumns, payload.columnId, payload.ticket);
-      });
+      setColumns((prevColumns) =>
+        addTicketToColumn(prevColumns, payload.columnId, payload.ticket),
+      );
     });
 
-    // On nettoie l'écouteur quand on quitte la page pour pas faire bugger React
+    socket.on("ticket_deleted", (payload: TicketDeletedPayload) => {
+      if (payload.projectId !== projectId) return;
+      setColumns((prevColumns) =>
+        deleteTicketFromBoard(prevColumns, payload.ticketId),
+      );
+    });
+
+    socket.on("ticket_updated", (payload: TicketUpdatedPayload) => {
+      if (payload.projectId !== projectId) return;
+      setColumns((prevColumns) =>
+        modifyTicketInBoard(prevColumns, payload.ticketId, payload.updates),
+      );
+    });
+
+    socket.on("ticket_assigned", (payload: TicketAssignedPayload) => {
+      if (payload.projectId !== projectId) return;
+      // On traite l'assignation comme un simple update local de la clé "assigneeId"
+      setColumns((prevColumns) =>
+        modifyTicketInBoard(prevColumns, payload.ticketId, {
+          assigneeId: payload.assigneeId,
+          assignee: payload.assignee,
+        }),
+      );
+    });
+
+    // On nettoie tous les écouteurs quand on quitte la page pour pas faire bugger React avec des events en double
     return () => {
       socket.off("ticket_moved");
       socket.off("ticket_created");
+      socket.off("ticket_deleted");
+      socket.off("ticket_updated");
+      socket.off("ticket_assigned");
     };
   }, [socket, projectId]);
 
@@ -232,9 +308,9 @@ export function useKanbanDragAndDrop(
     if (!target) return;
 
     const { targetColumnIndex, realTargetColumnId } = target;
+    const targetColumn = columns[targetColumnIndex];
 
     // Ici on vérifie si la colonne est lock et s'il a le bon role pour le mettre dedans
-    const targetColumn = columns[targetColumnIndex];
     if (
       targetColumn.isLocked &&
       currentUserRole !== "PO" &&

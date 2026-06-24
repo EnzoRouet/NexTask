@@ -75,6 +75,14 @@ export class TicketsService {
     return await this.prisma.ticket.update({
       where: { id: ticketId },
       data: { assigneeId: targetUserId },
+      include: {
+        assignee: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
   }
 

@@ -33,6 +33,31 @@ export interface TicketCreatedPayload {
   ticket: Ticket;
 }
 
+export interface TicketDeletedPayload {
+  projectId: string;
+  columnId: string;
+  ticketId: string;
+}
+
+export interface TicketUpdatedPayload {
+  projectId: string;
+  columnId: string;
+  ticketId: string;
+  updates: {
+    title?: string;
+    description?: string | null;
+    priority?: 'LOW' | 'MEDIUM' | 'HIGH';
+  };
+}
+
+export interface TicketAssignedPayload {
+  projectId: string;
+  columnId: string;
+  ticketId: string;
+  assigneeId: string | null;
+  assignee?: { id: string; name: string };
+}
+
 @WebSocketGateway({
   cors: {
     origin: '*',
@@ -126,6 +151,42 @@ export class KanbanGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.logger.log(
       `Synchronisation : Nouveau ticket créé par ${client.data.user.email} dans la colonne ${payload.columnId}`,
+    );
+  }
+
+  @SubscribeMessage('delete_ticket')
+  handleDeleteTicket(
+    @MessageBody() payload: TicketDeletedPayload,
+    @ConnectedSocket() client: AuthenticatedSocket,
+  ) {
+    const roomName = `project:${payload.projectId}`;
+    client.broadcast.to(roomName).emit('ticket_deleted', payload);
+    this.logger.log(
+      `Sync : Ticket ${payload.ticketId} supprimé par ${client.data.user.email}`,
+    );
+  }
+
+  @SubscribeMessage('update_ticket')
+  handleUpdateTicket(
+    @MessageBody() payload: TicketUpdatedPayload,
+    @ConnectedSocket() client: AuthenticatedSocket,
+  ) {
+    const roomName = `project:${payload.projectId}`;
+    client.broadcast.to(roomName).emit('ticket_updated', payload);
+    this.logger.log(
+      `Sync : Ticket ${payload.ticketId} modifié par ${client.data.user.email}`,
+    );
+  }
+
+  @SubscribeMessage('assign_ticket')
+  handleAssignTicket(
+    @MessageBody() payload: TicketAssignedPayload,
+    @ConnectedSocket() client: AuthenticatedSocket,
+  ) {
+    const roomName = `project:${payload.projectId}`;
+    client.broadcast.to(roomName).emit('ticket_assigned', payload);
+    this.logger.log(
+      `Sync : Ticket ${payload.ticketId} assigné par ${client.data.user.email}`,
     );
   }
 }

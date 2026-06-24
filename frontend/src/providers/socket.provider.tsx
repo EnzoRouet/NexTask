@@ -16,8 +16,7 @@ interface SocketContextType {
 }
 
 interface CustomSession {
-  accessToken?: string;
-  token?: string;
+  access_token?: string;
 }
 
 const SocketContext = createContext<SocketContextType>({
@@ -38,7 +37,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     const customSession = session as unknown as CustomSession;
-    const token = customSession.accessToken || customSession.token;
+
+    const token = customSession.access_token;
 
     if (!token) {
       console.warn(
@@ -49,6 +49,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     const backendUrl =
       process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
     const socketInstance = io(backendUrl, {
       auth: {
         token: token,
