@@ -248,6 +248,14 @@ describe('TicketsService', () => {
       expect(prisma.ticket.update).toHaveBeenCalledWith({
         where: { id: ticketId },
         data: { assigneeId: targetUserId },
+        include: {
+          assignee: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
       });
     });
   });
