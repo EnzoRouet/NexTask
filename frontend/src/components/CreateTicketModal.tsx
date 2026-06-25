@@ -68,16 +68,16 @@ export function CreateTicketModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-surface border border-border-dim rounded-xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden">
-        <div className="p-5 border-b border-border-dim flex justify-between items-center bg-surface">
-          <h2 className="text-lg font-bold text-text-main tracking-tight">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-all">
+      <div className="bg-surface border border-border-dim rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.5)] w-full max-w-md flex flex-col overflow-hidden">
+        <div className="p-5 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+          <h3 className="text-lg font-bold text-white tracking-tight">
             Nouveau ticket
-          </h2>
+          </h3>
           <button
             onClick={onClose}
             disabled={isSubmitting}
-            className="text-text-muted hover:text-text-main transition-colors p-1 rounded-md hover:bg-surface-hover disabled:opacity-50"
+            className="text-text-muted hover:text-white transition-colors p-1.5 rounded-md hover:bg-white/10 disabled:opacity-50"
           >
             <X className="w-5 h-5" />
           </button>
@@ -85,51 +85,51 @@ export function CreateTicketModal({
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="p-6 flex flex-col gap-5"
+          className="p-6 flex flex-col gap-6"
         >
-          <div>
+          <div className="flex flex-col gap-2">
             <label
               htmlFor="title"
-              className="block text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-1.5"
+              className="block text-xs font-semibold text-text-muted uppercase tracking-wider"
             >
-              Titre du ticket <span className="text-accent">*</span>
+              Titre du ticket
             </label>
             <input
               id="title"
               type="text"
               placeholder="Ex: Configurer la base Prisma"
               {...register("title")}
-              className={`w-full h-10 px-3 rounded-md border text-sm outline-none transition-all bg-background text-text-main placeholder:text-border-focus ${
+              className={`w-full h-11 px-3 rounded-lg border text-sm outline-none transition-all bg-white/5 text-white placeholder:text-text-muted/50 shadow-inner ${
                 errors.title
-                  ? "border-red-500/50 focus:border-red-500 focus:ring-1 focus:ring-red-500/50"
-                  : "border-border-dim focus:border-border-focus focus:ring-1 focus:ring-border-focus"
+                  ? "border-red-500/50 focus:border-red-500 focus:bg-red-500/5 focus:ring-1 focus:ring-red-500/50"
+                  : "border-white/10 focus:border-accent focus:bg-accent/5 focus:ring-1 focus:ring-accent/50"
               }`}
             />
             {errors.title && (
-              <p className="mt-1.5 text-xs text-red-400 font-medium">
+              <p className="mt-1 text-xs text-red-400 font-medium">
                 {errors.title.message}
               </p>
             )}
           </div>
 
-          <div>
+          <div className="flex flex-col gap-2">
             <label
               htmlFor="priority"
-              className="block text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-1.5"
+              className="block text-xs font-semibold text-text-muted uppercase tracking-wider"
             >
               Priorité
             </label>
             <select
               id="priority"
               {...register("priority")}
-              className="w-full h-10 px-3 rounded-md border border-border-dim text-sm outline-none transition-all focus:border-border-focus focus:ring-1 focus:ring-border-focus text-text-main bg-background cursor-pointer"
+              className="w-full h-11 px-3 rounded-lg border border-white/10 text-sm outline-none transition-all focus:border-accent focus:bg-accent/5 focus:ring-1 focus:ring-accent/50 text-white bg-surface cursor-pointer shadow-inner"
             >
               <option value="LOW">Basse</option>
               <option value="MEDIUM">Moyenne</option>
               <option value="HIGH">Haute</option>
             </select>
             {errors.priority && (
-              <p className="mt-1.5 text-xs text-red-400 font-medium">
+              <p className="mt-1 text-xs text-red-400 font-medium">
                 {errors.priority.message}
               </p>
             )}
@@ -140,14 +140,14 @@ export function CreateTicketModal({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-text-main bg-surface border border-border-dim rounded-md hover:bg-surface-hover hover:border-border-focus transition-colors disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium text-text-main bg-transparent border border-white/10 rounded-lg hover:bg-white/5 hover:text-white transition-colors disabled:opacity-50"
             >
               Annuler
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-accent rounded-md transition-all hover:opacity-90 disabled:opacity-50 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
+              className="flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-accent rounded-lg transition-all hover:bg-blue-500 disabled:opacity-50 shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_25px_rgba(59,130,246,0.5)]"
             >
               {isSubmitting ? (
                 <>

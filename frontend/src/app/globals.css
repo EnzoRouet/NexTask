@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --bg-main: #111113;
-  --bg-surface: #1c1c1f;
-  --bg-surface-hover: #232326;
+  --bg-main: #0c0c0e; /* Un fond très légèrement plus profond */
+  --bg-surface: #18181b; /* Un gris Zinc plus standard et élégant */
+  --bg-surface-hover: #27272a;
 
-  --border-dim: #2e2e32;
-  --border-focus: #4b4b52;
+  --border-dim: #3f3f46; /* Des bordures BEAUCOUP plus visibles et nettes */
+  --border-focus: #52525b;
 
-  --text-main: #e4e4e7;
-  --text-muted: #8b8b93;
+  --text-main: #ffffff; /* Blanc pur pour les titres et données clés */
+  --text-muted: #a1a1aa; /* Un gris plus doux pour les descriptions */
 
-  --accent: #3b82f6;
+  --accent: #3b82f6; /* Bleu électrique vif */
 }
 
 @theme inline {

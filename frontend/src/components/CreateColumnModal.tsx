@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { BoardColumn } from "@/types/boardColumn";
-import { X, Loader2, Lock } from "lucide-react";
+import { X, Loader2, Lock, LayoutPanelLeft } from "lucide-react";
 
 interface Props {
   isOpen: boolean;
@@ -53,31 +53,33 @@ export function CreateColumnModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-surface border border-border-dim rounded-xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden">
-        <div className="p-5 border-b border-border-dim flex justify-between items-center bg-surface">
-          <h3 className="text-lg font-bold text-text-main tracking-tight">
-            Nouvelle colonne
-          </h3>
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-all">
+      <div className="bg-surface border border-border-dim rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.5)] w-full max-w-md flex flex-col overflow-hidden">
+        <div className="p-5 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+          <div className="flex items-center gap-3">
+            <h3 className="text-lg font-bold text-white tracking-tight">
+              Nouvelle colonne
+            </h3>
+          </div>
           <button
             onClick={onClose}
-            className="text-text-muted hover:text-text-main transition-colors p-1 rounded-md hover:bg-surface-hover"
+            className="text-text-muted hover:text-white transition-colors p-1.5 rounded-md hover:bg-white/10"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-5">
+        <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-6">
           {error && (
-            <p className="p-3 bg-red-500/10 text-red-500 border border-red-500/20 rounded-md text-sm">
+            <p className="p-3 bg-red-500/10 text-red-400 border border-red-500/20 rounded-md text-sm font-medium">
               {error}
             </p>
           )}
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             <label
               htmlFor="columnName"
-              className="block text-[11px] font-semibold text-text-muted uppercase tracking-wider"
+              className="block text-xs font-semibold text-text-muted uppercase tracking-wider"
             >
               Nom de la colonne
             </label>
@@ -87,13 +89,13 @@ export function CreateColumnModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ex: Assurance Qualité, Bug..."
-              className="w-full h-10 px-3 rounded-md border border-border-dim text-sm outline-none transition-all bg-background text-text-main placeholder:text-border-focus focus:border-border-focus focus:ring-1 focus:ring-border-focus"
+              className="w-full h-11 px-3 rounded-lg border border-white/10 text-sm outline-none transition-all bg-white/5 text-white placeholder:text-text-muted/50 focus:border-accent focus:bg-accent/5 focus:ring-1 focus:ring-accent/50 shadow-inner"
               autoFocus
               disabled={isLoading}
             />
           </div>
 
-          <div className="flex items-start gap-3 mt-2 p-3 bg-background border border-border-dim rounded-md">
+          <div className="flex items-start gap-3 mt-1 p-4 bg-white/5 border border-white/10 rounded-lg hover:border-white/20 transition-colors">
             <div className="flex items-center h-5 mt-0.5">
               <input
                 id="isLocked"
@@ -101,18 +103,18 @@ export function CreateColumnModal({
                 checked={isLocked}
                 onChange={(e) => setIsLocked(e.target.checked)}
                 disabled={isLoading}
-                className="w-4 h-4 bg-surface border-border-dim rounded text-accent focus:ring-accent focus:ring-offset-0 transition-colors cursor-pointer"
+                className="w-4 h-4 bg-white/10 border-white/20 rounded text-accent focus:ring-accent focus:ring-offset-0 transition-colors cursor-pointer"
               />
             </div>
             <div className="flex flex-col">
               <label
                 htmlFor="isLocked"
-                className="text-sm font-medium text-text-main flex items-center gap-1.5 cursor-pointer select-none"
+                className="text-sm font-medium text-white flex items-center gap-1.5 cursor-pointer select-none"
               >
                 <Lock className="w-3.5 h-3.5 text-text-muted" />
                 Verrouiller la colonne
               </label>
-              <p className="text-[11px] text-text-muted mt-1">
+              <p className="text-xs text-text-muted mt-1 leading-relaxed">
                 Seul le Product Owner ou l&apos;Owner pourront y déplacer des
                 tickets.
               </p>
@@ -124,14 +126,14 @@ export function CreateColumnModal({
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="px-4 py-2 text-sm font-medium text-text-main bg-surface border border-border-dim rounded-md hover:bg-surface-hover hover:border-border-focus transition-colors disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium text-text-main bg-transparent border border-white/10 rounded-lg hover:bg-white/5 hover:text-white transition-colors disabled:opacity-50"
             >
               Annuler
             </button>
             <button
               type="submit"
               disabled={isLoading || !name.trim()}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-accent rounded-md transition-all hover:opacity-90 disabled:opacity-50 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
+              className="flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-accent rounded-lg transition-all hover:bg-blue-500 disabled:opacity-50 shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_25px_rgba(59,130,246,0.5)]"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
               Créer la colonne

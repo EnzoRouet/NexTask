@@ -145,22 +145,20 @@ export function TicketDetailsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm transition-all">
-      <div className="bg-surface rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col relative border border-border-dim overflow-hidden">
-        {/* BOUTON FERMER ABSOLU */}
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm transition-all">
+      <div className="bg-surface rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.5)] w-full max-w-2xl max-h-[90vh] flex flex-col relative border border-border-dim overflow-hidden">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 p-1.5 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-md transition-colors z-10"
+          className="absolute right-4 top-4 p-1.5 text-text-muted hover:text-white hover:bg-white/10 rounded-md transition-colors z-10"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="p-6 overflow-y-auto custom-scrollbar">
-          {/* TITRE (Input invisible) */}
           <div className="mb-6 pr-8 -ml-2 mt-2">
             <input
               type="text"
-              className="w-full text-2xl font-bold text-text-main bg-transparent border border-transparent hover:border-border-dim focus:bg-background focus:border-border-focus rounded-md px-2 py-1 outline-none transition-all placeholder:text-border-focus"
+              className="w-full text-2xl font-bold text-white bg-transparent border border-transparent hover:bg-white/5 hover:border-white/10 focus:bg-white/5 focus:border-accent rounded-lg px-2 py-1 outline-none transition-all placeholder:text-text-muted/50 focus:shadow-inner focus:ring-1 focus:ring-accent/50"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               onBlur={() => handleUpdate("title", title)}
@@ -171,28 +169,33 @@ export function TicketDetailsModal({
 
           <div className="flex flex-col gap-6">
             <div className="flex flex-col md:flex-row gap-6">
-              {/* ASSIGNATION */}
               <div className="flex flex-col gap-2 flex-1">
-                <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
+                <label className="text-xs font-semibold text-text-muted uppercase tracking-wider">
                   Assigné à
                 </label>
                 {isFetchingMembers ? (
-                  <div className="flex items-center gap-2 text-text-muted text-sm p-2.5 bg-background border border-border-dim rounded-md">
+                  <div className="flex items-center gap-2 text-text-muted text-sm p-2.5 bg-white/5 border border-white/10 rounded-lg shadow-inner">
                     <Loader2 className="w-4 h-4 animate-spin" /> Chargement...
                   </div>
                 ) : (
                   <select
-                    className="w-full bg-background border border-border-dim rounded-md p-2.5 text-sm text-text-main focus:outline-none focus:border-border-focus transition-all cursor-pointer disabled:opacity-50"
+                    className="w-full h-11 px-3 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-accent focus:bg-accent/5 focus:ring-1 focus:ring-accent/50 transition-all cursor-pointer disabled:opacity-50 shadow-inner"
                     value={assigneeId || "UNASSIGNED"}
                     onChange={(e) => handleAssign(e.target.value)}
                     disabled={isSaving}
                   >
-                    <option value="" disabled>
+                    <option value="" disabled className="bg-surface">
                       Sélectionner un développeur
                     </option>
-                    <option value="UNASSIGNED">Non assigné</option>
+                    <option value="UNASSIGNED" className="bg-surface">
+                      Non assigné
+                    </option>
                     {projectMembers.map((member) => (
-                      <option key={member.id} value={member.user.id}>
+                      <option
+                        key={member.id}
+                        value={member.user.id}
+                        className="bg-surface"
+                      >
                         {member.user.name}
                       </option>
                     ))}
@@ -200,13 +203,12 @@ export function TicketDetailsModal({
                 )}
               </div>
 
-              {/* PRIORITÉ */}
               <div className="flex flex-col gap-2 flex-1">
-                <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
+                <label className="text-xs font-semibold text-text-muted uppercase tracking-wider">
                   Priorité
                 </label>
                 <select
-                  className="w-full bg-background border border-border-dim rounded-md p-2.5 text-sm text-text-main focus:outline-none focus:border-border-focus transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full h-11 px-3 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-accent focus:bg-accent/5 focus:ring-1 focus:ring-accent/50 transition-all cursor-pointer disabled:opacity-50 shadow-inner"
                   value={priority}
                   onChange={(e) => {
                     const newPriority = e.target.value as Priority;
@@ -215,20 +217,25 @@ export function TicketDetailsModal({
                   }}
                   disabled={isSaving}
                 >
-                  <option value="LOW">Basse</option>
-                  <option value="MEDIUM">Moyenne</option>
-                  <option value="HIGH">Haute</option>
+                  <option value="LOW" className="bg-surface">
+                    Basse
+                  </option>
+                  <option value="MEDIUM" className="bg-surface">
+                    Moyenne
+                  </option>
+                  <option value="HIGH" className="bg-surface">
+                    Haute
+                  </option>
                 </select>
               </div>
             </div>
 
-            {/* DESCRIPTION */}
             <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
+              <label className="text-xs font-semibold text-text-muted uppercase tracking-wider">
                 Description
               </label>
               <textarea
-                className="w-full bg-background p-4 rounded-md border border-border-dim hover:border-border-focus focus:border-accent focus:ring-1 focus:ring-accent/50 min-h-[140px] text-sm text-text-main outline-none transition-all resize-y placeholder:text-border-focus custom-scrollbar"
+                className="w-full bg-white/5 p-4 rounded-lg border border-white/10 hover:border-white/20 focus:border-accent focus:bg-accent/5 focus:ring-1 focus:ring-accent/50 min-h-35 text-sm text-white outline-none transition-all resize-y placeholder:text-text-muted/50 custom-scrollbar shadow-inner"
                 value={description || ""}
                 onChange={(e) => setDescription(e.target.value)}
                 onBlur={() => handleUpdate("description", description)}
@@ -239,12 +246,11 @@ export function TicketDetailsModal({
           </div>
         </div>
 
-        {/* FOOTER */}
-        <div className="px-6 py-4 flex items-center justify-between border-t border-border-dim bg-background/50">
+        <div className="px-6 py-4 flex items-center justify-between border-t border-white/5 bg-white/2">
           <div className="flex items-center">
             {isSaving ? (
               <div className="flex items-center gap-2 text-text-muted text-xs animate-pulse">
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-accent" />
                 <span>Enregistrement automatique...</span>
               </div>
             ) : (
@@ -255,19 +261,18 @@ export function TicketDetailsModal({
           </div>
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-text-main bg-surface border border-border-dim rounded-md hover:bg-surface-hover hover:border-border-focus transition-colors"
+            className="px-4 py-2 text-sm font-medium text-text-main bg-transparent border border-white/10 rounded-lg hover:bg-white/5 hover:text-white transition-colors"
           >
             Fermer
           </button>
         </div>
 
-        {/* ERREUR FLOTTANTE */}
         {errorMessage && (
-          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-md flex items-center gap-3 text-red-500 text-sm shadow-lg animate-in slide-in-from-bottom-4">
+          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-3 text-red-400 text-sm shadow-[0_0_15px_rgba(239,68,68,0.2)] animate-in slide-in-from-bottom-4">
             <span className="font-medium">{errorMessage}</span>
             <button
               onClick={() => setErrorMessage(null)}
-              className="hover:text-red-400"
+              className="hover:text-red-300"
             >
               <X className="w-4 h-4" />
             </button>
