@@ -56,8 +56,10 @@ export default async function BoardPage({ params }: Readonly<BoardPageProps>) {
     <div className="h-full flex flex-col">
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-gray-800">Sprint Actuel</h2>
-          <p className="text-gray-500">
+          <h2 className="text-3xl font-bold text-text-main tracking-tight">
+            Sprint Actuel
+          </h2>
+          <p className="text-text-muted mt-1">
             Gérez vos tickets en les déplaçant dans les colonnes.
           </p>
         </div>
@@ -71,7 +73,7 @@ export default async function BoardPage({ params }: Readonly<BoardPageProps>) {
         />
       </div>
 
-      <div className="p-4 text-yellow-800 rounded">
+      <div className="flex-1 mt-2">
         <KanbanBoard
           project={project}
           token={session.access_token}

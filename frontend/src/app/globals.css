@@ -30,9 +30,9 @@ body {
   color: var(--color-text-main);
   font-family: var(--font-geist-sans);
 
-  background-image:
+  /* background-image:
     linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 32px 32px;
-  background-position: center center;
+  background-position: center center; */
 }
