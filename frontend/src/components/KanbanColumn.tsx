@@ -49,20 +49,27 @@ export default function KanbanColumn({
   };
 
   return (
-    <div className="flex flex-col w-80 shrink-0">
-      <div className="flex justify-between items-center mb-4 px-2">
-        <h2 className="font-bold text-gray-700">{column.name}</h2>
+    <div className="flex flex-col w-[320px] shrink-0 group">
+      <div className="flex justify-between items-center mb-3 px-1">
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-medium text-text-main">{column.name}</h2>
+
+          <span className="text-[11px] font-mono text-text-muted bg-surface px-1.5 py-0.5 rounded border border-border-dim">
+            {column.tickets.length}
+          </span>
+        </div>
 
         <button
           onClick={handleDeleteColumn}
-          className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded hover:bg-gray-200"
+          className="text-text-muted hover:text-red-400 transition-all duration-200 p-1.5 rounded-md hover:bg-surface-hover opacity-0 group-hover:opacity-100 focus:opacity-100"
           title="Supprimer la colonne"
         >
-          <Trash2 className="w-5 h-5" />
+          <Trash2 className="w-4 h-4" />
         </button>
       </div>
+
       <ul
-        className="bg-gray-100 p-4 rounded-lg min-h-75 border border-gray-200"
+        className="bg-surface p-2 rounded-md min-h-62.5 border border-border-dim flex flex-col gap-2 transition-colors"
         ref={setNodeRef}
       >
         <SortableContext items={column.tickets.map((t) => t.id)}>
