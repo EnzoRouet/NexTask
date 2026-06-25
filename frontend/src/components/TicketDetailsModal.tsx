@@ -11,10 +11,7 @@ export type Priority = "LOW" | "MEDIUM" | "HIGH";
 
 interface ProjectMemberResponse {
   id: string;
-  user: {
-    id: string;
-    name: string;
-  };
+  user: { id: string; name: string };
 }
 
 interface TicketDetailsModalProps {
@@ -48,11 +45,7 @@ export function TicketDetailsModal({
 
   useEffect(() => {
     if (!errorMessage) return;
-
-    const timer = setTimeout(() => {
-      setErrorMessage(null);
-    }, 3000);
-
+    const timer = setTimeout(() => setErrorMessage(null), 3000);
     return () => clearTimeout(timer);
   }, [errorMessage]);
 
@@ -87,7 +80,6 @@ export function TicketDetailsModal({
   const handleAssign = async (targetUserId: string | null) => {
     if (!targetUserId) return;
     setIsSaving(true);
-
     const payloadUserId = targetUserId === "UNASSIGNED" ? null : targetUserId;
     setAssigneeId(payloadUserId);
 
@@ -130,10 +122,7 @@ export function TicketDetailsModal({
     try {
       await apiFetch(
         `/tickets/${ticket.id}`,
-        {
-          method: "PATCH",
-          body: JSON.stringify({ [field]: value }),
-        },
+        { method: "PATCH", body: JSON.stringify({ [field]: value }) },
         token,
       );
 
@@ -156,20 +145,22 @@ export function TicketDetailsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 p-4 backdrop-blur-md transition-all">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative border border-neutral-200">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm transition-all">
+      <div className="bg-surface rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col relative border border-border-dim overflow-hidden">
+        {/* BOUTON FERMER ABSOLU */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 p-1.5 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-md transition-colors"
+          className="absolute right-4 top-4 p-1.5 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-md transition-colors z-10"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="p-6">
-          <div className="mb-6 pr-8 -ml-2">
+        <div className="p-6 overflow-y-auto custom-scrollbar">
+          {/* TITRE (Input invisible) */}
+          <div className="mb-6 pr-8 -ml-2 mt-2">
             <input
               type="text"
-              className="w-full text-2xl font-bold text-neutral-800 bg-transparent border border-transparent hover:bg-neutral-50 hover:border-neutral-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-lg px-2 py-1 outline-none transition-all"
+              className="w-full text-2xl font-bold text-text-main bg-transparent border border-transparent hover:border-border-dim focus:bg-background focus:border-border-focus rounded-md px-2 py-1 outline-none transition-all placeholder:text-border-focus"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               onBlur={() => handleUpdate("title", title)}
@@ -180,18 +171,18 @@ export function TicketDetailsModal({
 
           <div className="flex flex-col gap-6">
             <div className="flex flex-col md:flex-row gap-6">
+              {/* ASSIGNATION */}
               <div className="flex flex-col gap-2 flex-1">
-                <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+                <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
                   Assigné à
                 </label>
-
                 {isFetchingMembers ? (
-                  <div className="flex items-center gap-2 text-neutral-500 text-sm p-2">
+                  <div className="flex items-center gap-2 text-text-muted text-sm p-2.5 bg-background border border-border-dim rounded-md">
                     <Loader2 className="w-4 h-4 animate-spin" /> Chargement...
                   </div>
                 ) : (
                   <select
-                    className="w-full border border-neutral-300 rounded-lg p-2.5 bg-neutral-50 text-neutral-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all cursor-pointer disabled:opacity-50 appearance-none"
+                    className="w-full bg-background border border-border-dim rounded-md p-2.5 text-sm text-text-main focus:outline-none focus:border-border-focus transition-all cursor-pointer disabled:opacity-50"
                     value={assigneeId || "UNASSIGNED"}
                     onChange={(e) => handleAssign(e.target.value)}
                     disabled={isSaving}
@@ -209,12 +200,13 @@ export function TicketDetailsModal({
                 )}
               </div>
 
+              {/* PRIORITÉ */}
               <div className="flex flex-col gap-2 flex-1">
-                <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+                <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
                   Priorité
                 </label>
                 <select
-                  className="w-full border border-neutral-300 rounded-lg p-2.5 bg-neutral-50 text-neutral-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all cursor-pointer disabled:opacity-50 appearance-none"
+                  className="w-full bg-background border border-border-dim rounded-md p-2.5 text-sm text-text-main focus:outline-none focus:border-border-focus transition-all cursor-pointer disabled:opacity-50"
                   value={priority}
                   onChange={(e) => {
                     const newPriority = e.target.value as Priority;
@@ -230,12 +222,13 @@ export function TicketDetailsModal({
               </div>
             </div>
 
+            {/* DESCRIPTION */}
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+              <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
                 Description
               </label>
               <textarea
-                className="w-full bg-neutral-50 p-4 rounded-lg border border-transparent hover:border-neutral-200 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 min-h-30 text-neutral-700 outline-none transition-all resize-y"
+                className="w-full bg-background p-4 rounded-md border border-border-dim hover:border-border-focus focus:border-accent focus:ring-1 focus:ring-accent/50 min-h-[140px] text-sm text-text-main outline-none transition-all resize-y placeholder:text-border-focus custom-scrollbar"
                 value={description || ""}
                 onChange={(e) => setDescription(e.target.value)}
                 onBlur={() => handleUpdate("description", description)}
@@ -246,27 +239,35 @@ export function TicketDetailsModal({
           </div>
         </div>
 
-        <div className="px-6 pb-6 pt-2 flex items-center justify-end gap-4 border-t border-transparent">
-          {isSaving && (
-            <div className="flex items-center gap-2 text-neutral-500 text-sm animate-pulse">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Enregistrement...</span>
-            </div>
-          )}
+        {/* FOOTER */}
+        <div className="px-6 py-4 flex items-center justify-between border-t border-border-dim bg-background/50">
+          <div className="flex items-center">
+            {isSaving ? (
+              <div className="flex items-center gap-2 text-text-muted text-xs animate-pulse">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Enregistrement automatique...</span>
+              </div>
+            ) : (
+              <span className="text-text-muted text-xs">
+                Toutes les modifications sont enregistrées.
+              </span>
+            )}
+          </div>
           <button
             onClick={onClose}
-            className="bg-emerald-600 text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-emerald-700 transition-all font-medium text-sm focus:ring-2 focus:ring-emerald-300 outline-none"
+            className="px-4 py-2 text-sm font-medium text-text-main bg-surface border border-border-dim rounded-md hover:bg-surface-hover hover:border-border-focus transition-colors"
           >
-            Terminer
+            Fermer
           </button>
         </div>
 
+        {/* ERREUR FLOTTANTE */}
         {errorMessage && (
-          <div className="mb-4 mx-6 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between text-red-700 animate-in fade-in slide-in-from-top-2">
-            <span className="text-sm font-medium">{errorMessage}</span>
+          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-md flex items-center gap-3 text-red-500 text-sm shadow-lg animate-in slide-in-from-bottom-4">
+            <span className="font-medium">{errorMessage}</span>
             <button
               onClick={() => setErrorMessage(null)}
-              className="text-red-500 hover:text-red-800"
+              className="hover:text-red-400"
             >
               <X className="w-4 h-4" />
             </button>

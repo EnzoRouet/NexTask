@@ -37,13 +37,9 @@ export function CreateColumnModal({
     try {
       const newColumn = await apiFetch<BoardColumn>(
         `/columns/${projectId}`,
-        {
-          method: "POST",
-          body: JSON.stringify({ name, isLocked }),
-        },
+        { method: "POST", body: JSON.stringify({ name, isLocked }) },
         token,
       );
-
       onSuccess(newColumn);
       setName("");
       setIsLocked(false);
@@ -57,27 +53,31 @@ export function CreateColumnModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden flex flex-col">
-        <div className="flex justify-between items-center p-4 border-b">
-          <h3 className="text-lg font-semibold text-gray-800">
-            Nouvelle étape
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-surface border border-border-dim rounded-xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden">
+        <div className="p-5 border-b border-border-dim flex justify-between items-center bg-surface">
+          <h3 className="text-lg font-bold text-text-main tracking-tight">
+            Nouvelle colonne
           </h3>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-text-muted hover:text-text-main transition-colors p-1 rounded-md hover:bg-surface-hover"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 flex flex-col gap-4">
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+        <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-5">
+          {error && (
+            <p className="p-3 bg-red-500/10 text-red-500 border border-red-500/20 rounded-md text-sm">
+              {error}
+            </p>
+          )}
 
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             <label
               htmlFor="columnName"
-              className="text-sm font-medium text-gray-700"
+              className="block text-[11px] font-semibold text-text-muted uppercase tracking-wider"
             >
               Nom de la colonne
             </label>
@@ -86,52 +86,52 @@ export function CreateColumnModal({
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ex: QA, En attente..."
-              className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+              placeholder="Ex: Assurance Qualité, Bug..."
+              className="w-full h-10 px-3 rounded-md border border-border-dim text-sm outline-none transition-all bg-background text-text-main placeholder:text-border-focus focus:border-border-focus focus:ring-1 focus:ring-border-focus"
               autoFocus
               disabled={isLoading}
             />
           </div>
 
-          <div className="flex items-start gap-3 mt-2">
-            <div className="flex items-center h-5">
+          <div className="flex items-start gap-3 mt-2 p-3 bg-background border border-border-dim rounded-md">
+            <div className="flex items-center h-5 mt-0.5">
               <input
                 id="isLocked"
                 type="checkbox"
                 checked={isLocked}
                 onChange={(e) => setIsLocked(e.target.checked)}
                 disabled={isLoading}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                className="w-4 h-4 bg-surface border-border-dim rounded text-accent focus:ring-accent focus:ring-offset-0 transition-colors cursor-pointer"
               />
             </div>
             <div className="flex flex-col">
               <label
                 htmlFor="isLocked"
-                className="text-sm font-medium text-gray-700 flex items-center gap-1 cursor-pointer"
+                className="text-sm font-medium text-text-main flex items-center gap-1.5 cursor-pointer select-none"
               >
-                <Lock className="w-3.5 h-3.5" />
+                <Lock className="w-3.5 h-3.5 text-text-muted" />
                 Verrouiller la colonne
               </label>
-              <p className="text-xs text-gray-500 mt-1">
-                Seul le Product Owner ou le Créateur du projet pourra y déplacer
-                des tickets.
+              <p className="text-[11px] text-text-muted mt-1">
+                Seul le Product Owner ou l&apos;Owner pourront y déplacer des
+                tickets.
               </p>
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 mt-4">
+          <div className="flex justify-end gap-3 mt-2">
             <button
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium text-text-main bg-surface border border-border-dim rounded-md hover:bg-surface-hover hover:border-border-focus transition-colors disabled:opacity-50"
             >
               Annuler
             </button>
             <button
               type="submit"
               disabled={isLoading || !name.trim()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-accent rounded-md transition-all hover:opacity-90 disabled:opacity-50 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
               Créer la colonne
