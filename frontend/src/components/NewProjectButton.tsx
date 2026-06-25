@@ -10,9 +10,9 @@ export function NewProjectButton({ token }: Readonly<{ token: string }>) {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="px-4 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700 transition-colors"
+        className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-lg transition-all hover:opacity-90 shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_25px_rgba(59,130,246,0.4)] flex items-center gap-2"
       >
-        + Nouveau Projet
+        <span className="text-lg leading-none mb-0.5">+</span> Nouveau Projet
       </button>
 
       <CreateProjectModal

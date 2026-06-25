@@ -4,6 +4,7 @@ import Link from "next/link";
 import LogoutButton from "@/components/LogoutButton";
 import { apiFetch } from "@/lib/api";
 import { NewProjectButton } from "@/components/NewProjectButton";
+import { Shield, ArrowRight, FolderKanban } from "lucide-react";
 
 interface Project {
   id: string;
@@ -27,17 +28,17 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-black font-sans p-4 md:p-8">
-      <div className="max-w-6xl mx-auto flex flex-col gap-8">
-        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b border-gray-200 gap-4">
+    <div className="min-h-screen bg-background text-text-main font-sans p-4 md:p-8">
+      <div className="max-w-6xl mx-auto flex flex-col gap-10 mt-4">
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b border-border-dim gap-4">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-              Nex<span className="text-blue-600">Task</span>
+            <h1 className="text-3xl font-bold tracking-tight text-white">
+              Nex<span className="text-accent">Task</span>
             </h1>
             {session && (
-              <p className="text-lg text-gray-600 mt-2">
+              <p className="text-sm text-text-muted mt-2">
                 Bonjour,{" "}
-                <span className="font-bold text-blue-600 tracking-wide">
+                <span className="font-semibold text-text-main">
                   {session.user?.name}
                 </span>
               </p>
@@ -48,9 +49,10 @@ export default async function HomePage() {
               {session.user?.role === "ADMIN" && (
                 <Link
                   href="/admin"
-                  className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
+                  className="flex items-center gap-2 px-3 py-1.5 bg-surface border border-border-dim hover:bg-surface-hover hover:border-border-focus text-text-muted hover:text-text-main text-xs font-semibold rounded-md transition-all"
                 >
-                  Centre de Contrôle
+                  <Shield className="w-3.5 h-3.5" />
+                  Administration
                 </Link>
               )}
               <LogoutButton />
@@ -59,92 +61,57 @@ export default async function HomePage() {
         </header>
 
         {!session ? (
-          <div className="flex flex-col items-center justify-center p-12 bg-white shadow-md rounded-lg text-center">
-            <div className="w-16 h-16 mb-4 rounded-full bg-red-50 flex items-center justify-center border border-red-100">
-              <svg
-                className="w-8 h-8 text-red-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
-            </div>
-            <p className="text-lg text-red-500 font-medium">
+          <div className="flex flex-col items-center justify-center p-12 bg-surface border border-border-dim rounded-xl text-center">
+            <p className="text-text-muted font-medium">
               Tu n&apos;es pas connecté.
             </p>
           </div>
         ) : (
-          <main className="flex flex-col gap-8 bg-white p-8 rounded-lg shadow-md w-full">
+          <main className="flex flex-col gap-6 w-full">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <h2 className="text-2xl font-semibold text-gray-800">
-                Vos Projets
+              <h2 className="text-xl font-bold text-white tracking-tight">
+                Espace de travail
               </h2>
               <NewProjectButton token={session.access_token ?? ""} />
             </div>
 
             {projects.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {projects.map((project) => (
                   <Link
                     key={project.id}
-                    href={`/${project.id}`}
-                    className="group relative flex flex-col justify-between p-6 h-40 bg-white border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-lg transition-all duration-300 ease-out"
+                    href={`/${project.id}/board`}
+                    className="group relative flex flex-col justify-between p-6 h-44 bg-surface border border-border-dim rounded-xl hover:border-border-focus hover:bg-surface-hover transition-all duration-300 ease-out shadow-sm hover:shadow-md"
                   >
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                    <div className="flex items-start justify-between gap-4">
+                      <h3 className="text-lg font-semibold text-white group-hover:text-accent transition-colors line-clamp-2 leading-tight">
                         {project.name}
                       </h3>
+                      <div className="p-2 bg-white/5 rounded-lg border border-white/5 group-hover:border-accent/20 transition-colors shrink-0">
+                        <FolderKanban className="w-5 h-5 text-text-muted group-hover:text-accent transition-colors" />
+                      </div>
                     </div>
 
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                      <span className="text-sm text-gray-500 group-hover:text-blue-500 transition-colors">
-                        Cliquez pour voir le tableau
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-border-dim">
+                      <span className="text-xs font-medium text-text-muted group-hover:text-text-main transition-colors">
+                        Ouvrir le tableau
                       </span>
-                      <svg
-                        className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transform group-hover:translate-x-1 transition-all"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M14 5l7 7m0 0l-7 7m7-7H3"
-                        />
-                      </svg>
+                      <ArrowRight className="w-4 h-4 text-text-muted group-hover:text-accent transform group-hover:translate-x-1 transition-all" />
                     </div>
                   </Link>
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center p-16 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 text-center">
-                <div className="w-16 h-16 mb-4 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
-                  <svg
-                    className="w-8 h-8 text-blue-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                    />
-                  </svg>
+              <div className="flex flex-col items-center justify-center p-16 border-2 border-dashed border-border-dim rounded-xl bg-transparent text-center">
+                <div className="w-16 h-16 mb-4 rounded-full bg-surface border border-border-dim flex items-center justify-center">
+                  <FolderKanban className="w-8 h-8 text-text-muted opacity-50" />
                 </div>
-                <p className="text-lg text-gray-600 font-medium">
-                  Aucun projet trouvé
+                <p className="text-lg text-text-main font-medium">
+                  Aucun projet actif
                 </p>
-                <p className="text-sm text-gray-500 mt-1">
-                  Créez-en un premier pour commencer !
+                <p className="text-sm text-text-muted mt-1 max-w-sm">
+                  C&apos;est bien vide ici. Créez votre premier projet pour
+                  commencer à organiser vos tâches.
                 </p>
               </div>
             )}
