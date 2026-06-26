@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import LogoutButton from "@/components/LogoutButton";
+import { Settings } from "lucide-react";
 
 interface ProjectLayoutProps {
   children: React.ReactNode;
@@ -50,7 +51,15 @@ export default async function ProjectLayout({
             Compte
           </div>
 
-          <div className="p-3 rounded-md hover:bg-surface-hover transition-colors mt-2">
+          <Link
+            href="/settings"
+            className="flex items-center gap-2 p-3 rounded-md hover:bg-surface-hover transition-colors text-sm font-medium text-text-muted hover:text-text-main mt-2"
+          >
+            <Settings className="w-4 h-4" />
+            Paramètres
+          </Link>
+
+          <div className="p-3 rounded-md hover:bg-surface-hover transition-colors">
             <LogoutButton />
           </div>
         </nav>

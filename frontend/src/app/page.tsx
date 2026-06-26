@@ -4,7 +4,7 @@ import Link from "next/link";
 import LogoutButton from "@/components/LogoutButton";
 import { apiFetch } from "@/lib/api";
 import { NewProjectButton } from "@/components/NewProjectButton";
-import { Shield, ArrowRight, FolderKanban } from "lucide-react";
+import { Shield, ArrowRight, FolderKanban, Settings } from "lucide-react";
 
 interface Project {
   id: string;
@@ -55,6 +55,13 @@ export default async function HomePage() {
                   Administration
                 </Link>
               )}
+              <Link
+                href="/settings"
+                className="flex items-center gap-2 px-3 py-1.5 bg-surface border border-border-dim hover:bg-surface-hover hover:border-border-focus text-text-muted hover:text-text-main text-xs font-semibold rounded-md transition-all"
+              >
+                <Settings className="w-3.5 h-3.5" />
+                Paramètres
+              </Link>
               <LogoutButton />
             </div>
           )}
