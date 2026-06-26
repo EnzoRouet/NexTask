@@ -32,9 +32,9 @@ function Badge({
   color?: "violet" | "blue" | "green" | "default";
 }) {
   const colors = {
-    violet: "bg-violet-500/10 text-violet-400 border-violet-500/20",
-    blue: "bg-accent/10 text-color-accent border-accent/20",
-    green: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    violet: "bg-violet-950/60 text-violet-400 border-violet-900",
+    blue: "bg-blue-950/60 text-blue-400 border-blue-900",
+    green: "bg-green-950/60 text-green-400 border-green-900",
     default: "bg-surface-hover text-text-muted border-border-dim",
   };
   return (
@@ -217,7 +217,7 @@ const roles = [
   {
     name: "Owner",
     color: "text-violet-400",
-    bg: "bg-violet-500/10 border-violet-500/20",
+    bg: "bg-violet-950/40 border-violet-900/60",
     dot: "bg-violet-500",
     perms: [
       "Accès complet au projet",
@@ -229,7 +229,7 @@ const roles = [
   {
     name: "Product Owner",
     color: "text-blue-400",
-    bg: "bg-blue-500/10 border-blue-500/20",
+    bg: "bg-blue-950/40 border-blue-900/60",
     dot: "bg-blue-500",
     perms: [
       "Création et gestion des tickets",
@@ -241,7 +241,7 @@ const roles = [
   {
     name: "Développeur",
     color: "text-green-400",
-    bg: "bg-green-500/10 border-green-500/20",
+    bg: "bg-green-950/40 border-green-900/60",
     dot: "bg-green-500",
     perms: [
       "Consultation du Kanban",
@@ -307,7 +307,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/register"
-              className="text-sm bg-accent text-white px-5 py-2 rounded-lg hover:opacity-90 transition-colors font-medium shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_25px_rgba(59,130,246,0.5)]"
+              className="text-sm bg-accent text-white px-5 py-2 rounded-lg hover:opacity-90 transition-colors font-medium"
             >
               Commencer gratuitement
             </Link>
@@ -367,9 +367,7 @@ export default function LandingPage() {
         <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold leading-[1.1] mb-6 tracking-tight text-text-main">
           Arrêtez de jongler entre
           <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">
-            trois outils différents
-          </span>
+          <span className="text-accent">trois outils différents</span>
         </h1>
         <p className="text-lg sm:text-xl text-text-muted max-w-2xl mx-auto mb-10 leading-relaxed">
           NexTask centralise votre kanban, votre documentation et la gestion des
@@ -378,7 +376,7 @@ export default function LandingPage() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/register"
-            className="inline-flex justify-center items-center gap-2 bg-accent text-white px-8 py-3.5 rounded-xl font-semibold hover:opacity-90 transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.5)]"
+            className="inline-flex justify-center items-center gap-2 bg-accent text-white px-8 py-3.5 rounded-xl font-semibold hover:opacity-90 transition-all"
           >
             Créer mon espace de travail
             <ArrowRight size={18} />
@@ -436,7 +434,7 @@ export default function LandingPage() {
                     </p>
                   </div>
                   <div className="flex gap-3">
-                    <div className="text-xs font-medium bg-accent text-white px-4 py-2 rounded-md shadow-lg shadow-blue-500/20">
+                    <div className="text-xs font-medium bg-accent text-white px-4 py-2 rounded-md">
                       + Nouveau Ticket
                     </div>
                   </div>
@@ -473,16 +471,19 @@ export default function LandingPage() {
                   onClick={() => setActiveFeature(i)}
                   className={`flex items-start gap-4 p-5 rounded-2xl border text-left transition-all duration-300 ${
                     activeFeature === i
-                      ? "border-accent/50 bg-accent/10 text-text-main shadow-[0_0_30px_rgba(59,130,246,0.15)]"
+                      ? "border-accent/50 bg-accent/10 text-text-main"
                       : "border-border-dim bg-surface text-text-muted hover:border-border-focus hover:bg-surface-hover"
                   }`}
                 >
-                  <div
-                    className={`p-2 rounded-lg ${activeFeature === i ? "bg-accent/20 text-accent" : "bg-surface-hover text-text-muted"}`}
-                  >
-                    <Icon size={20} />
-                  </div>
-                  <div className="min-w-0 flex-1 mt-0.5">
+                  <Icon
+                    size={20}
+                    className={
+                      activeFeature === i
+                        ? "text-accent mt-0.5 shrink-0"
+                        : "mt-0.5 shrink-0"
+                    }
+                  />
+                  <div className="min-w-0 flex-1">
                     <div className="text-base font-bold text-text-main mb-1">
                       {f.title}
                     </div>
@@ -495,7 +496,7 @@ export default function LandingPage() {
             })}
           </div>
 
-          <div className="flex-1 rounded-2xl border border-border-dim bg-surface p-8 overflow-hidden shadow-xl">
+          <div className="flex-1 rounded-2xl border border-border-dim bg-surface p-8 overflow-hidden">
             <div className="mb-6">
               <Badge color="default">{features[activeFeature].badge}</Badge>
               <h3 className="text-2xl font-bold mt-4 text-text-main">
@@ -514,7 +515,7 @@ export default function LandingPage() {
 
       <section
         id="roles"
-        className="py-24 px-4 sm:px-6 bg-surface border-y border-border-dim"
+        className="py-24 px-4 sm:px-6 bg-surface/30 border-y border-border-dim"
       >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
@@ -534,25 +535,23 @@ export default function LandingPage() {
             {roles.map((role) => (
               <div
                 key={role.name}
-                className={`rounded-2xl border p-8 bg-background ${role.bg}`}
+                className={`rounded-xl border p-6 ${role.bg}`}
               >
-                <div className="flex items-center gap-3 mb-6 pb-6 border-b border-border-dim">
-                  <div
-                    className={`w-3 h-3 rounded-full ${role.dot} shadow-[0_0_10px_currentColor]`}
-                  />
-                  <span className={`font-bold text-xl ${role.color}`}>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className={`w-2 h-2 rounded-full ${role.dot}`} />
+                  <span className={`font-bold text-base ${role.color}`}>
                     {role.name}
                   </span>
                 </div>
-                <ul className="flex flex-col gap-4">
+                <ul className="flex flex-col gap-2">
                   {role.perms.map((p) => (
                     <li
                       key={p}
-                      className="flex items-start gap-3 text-sm font-medium text-text-main opacity-90"
+                      className="flex items-start gap-2 text-sm text-text-main/80"
                     >
                       <CheckSquare
-                        size={18}
-                        className={`${role.color} shrink-0`}
+                        size={14}
+                        className={`${role.color} mt-0.5 shrink-0`}
                       />
                       {p}
                     </li>
@@ -574,24 +573,24 @@ export default function LandingPage() {
             équipe et commencez à travailler.
           </p>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {steps.map((step, i) => (
             <div
               key={step.n}
-              className="relative rounded-2xl border border-border-dim bg-surface p-8 hover:border-accent/30 transition-colors group"
+              className="relative rounded-xl border border-border-dim bg-surface p-5"
             >
               {i < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-12 -right-4 z-10 bg-background p-1 rounded-full border border-border-dim">
-                  <ChevronRight size={20} className="text-text-muted" />
+                <div className="hidden lg:block absolute top-8 -right-2 z-10">
+                  <ChevronRight size={16} className="text-border-focus" />
                 </div>
               )}
-              <div className="text-5xl font-black text-text-main/5 mb-6 leading-none group-hover:text-accent/10 transition-colors">
+              <div className="text-3xl font-black text-accent/20 mb-3 leading-none">
                 {step.n}
               </div>
-              <h3 className="text-lg font-bold mb-3 text-text-main">
+              <h3 className="text-sm font-semibold mb-2 text-text-main">
                 {step.title}
               </h3>
-              <p className="text-sm text-text-muted leading-relaxed font-medium">
+              <p className="text-xs text-text-muted leading-relaxed">
                 {step.desc}
               </p>
             </div>
@@ -599,9 +598,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="py-24 px-4 sm:px-6 bg-surface border-y border-border-dim">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-px bg-border-dim rounded-2xl overflow-hidden border border-border-dim">
+      <section className="py-24 px-4 sm:px-6 bg-surface/30 border-y border-border-dim">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-px bg-border-dim rounded-xl overflow-hidden">
             {[
               {
                 icon: LayoutDashboard,
@@ -617,9 +616,9 @@ export default function LandingPage() {
                 icon: X,
                 label: "Le problème",
                 items: [
-                  "3 abonnements hors de prix",
-                  "Synchronisation manuelle",
-                  "Onboarding fastidieux",
+                  "3 abonnements",
+                  "Synchro manuelle",
+                  "Onboarding long",
                   "Perte de contexte",
                 ],
               },
@@ -627,9 +626,9 @@ export default function LandingPage() {
                 icon: CheckSquare,
                 label: "Avec NexTask",
                 items: [
-                  "1 seul outil centralisé",
-                  "Tout est synchronisé",
-                  "Setup en 5 minutes",
+                  "1 seul outil",
+                  "Tout synchronisé",
+                  "Setup en 5 min",
                   "Équipe alignée",
                 ],
               },
@@ -638,32 +637,28 @@ export default function LandingPage() {
               return (
                 <div
                   key={col.label}
-                  className={`bg-background p-8 ${i === 2 ? "bg-accent/5 relative overflow-hidden" : ""}`}
+                  className={`bg-surface p-6 ${i === 2 ? "md:bg-accent/10" : ""}`}
                 >
-                  {i === 2 && (
-                    <div className="absolute top-0 left-0 w-full h-1 bg-accent" />
-                  )}
-                  <div className="flex items-center gap-3 mb-6">
-                    <div
-                      className={`p-2 rounded-lg ${i === 2 ? "bg-accent/20 text-accent" : "bg-surface text-text-muted"}`}
-                    >
-                      <Icon size={20} />
-                    </div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Icon
+                      size={16}
+                      className={i === 2 ? "text-accent" : "text-text-muted"}
+                    />
                     <span
-                      className={`text-lg font-bold ${i === 2 ? "text-text-main" : "text-gray-300"}`}
+                      className={`text-sm font-semibold ${i === 2 ? "text-accent" : "text-text-muted"}`}
                     >
                       {col.label}
                     </span>
                   </div>
-                  <ul className="flex flex-col gap-4">
+                  <ul className="flex flex-col gap-2">
                     {col.items.map((item) => (
                       <li
                         key={item}
-                        className={`text-sm font-medium flex items-center gap-3 ${i === 2 ? "text-blue-100" : "text-text-muted"}`}
+                        className={`text-sm ${i === 2 ? "text-text-main" : "text-text-muted"}`}
                       >
-                        {i === 0 && <span className="text-text-muted">→</span>}
-                        {i === 1 && <span className="text-red-500/50">✗</span>}
-                        {i === 2 && <span className="text-accent">✓</span>}
+                        {i === 0 && "→ "}
+                        {i === 1 && "✗ "}
+                        {i === 2 && "✓ "}
                         {item}
                       </li>
                     ))}
@@ -676,30 +671,31 @@ export default function LandingPage() {
       </section>
 
       <section className="py-32 px-4 sm:px-6 text-center max-w-4xl mx-auto relative">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-accent/10 blur-[100px] -z-10 rounded-full" />
         <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 tracking-tight text-text-main">
           Votre équipe mérite un
           <br />
           <span className="text-accent">espace de travail unifié</span>
         </h2>
         <p className="text-text-muted text-lg sm:text-xl mb-10 leading-relaxed max-w-2xl mx-auto">
-          Rejoignez les équipes de développement qui ont centralisé leur
-          workflow dans NexTask. Kanban, documentation et gestion des membres —
-          au même endroit.
+          Rejoignez les équipes dev qui ont centralisé leur workflow dans
+          NexTask. Kanban, documentation et gestion des membres — au même
+          endroit.
         </p>
-        <Link
-          href="/register"
-          className="inline-flex justify-center items-center gap-2 bg-accent text-white px-10 py-4 rounded-xl font-bold hover:opacity-90 transition-all shadow-[0_0_30px_rgba(59,130,246,0.3)] hover:shadow-[0_0_40px_rgba(59,130,246,0.5)] text-lg"
-        >
-          Créer mon espace gratuitement
-          <ArrowRight size={20} />
-        </Link>
+        <div className="flex justify-center">
+          <Link
+            href="/register"
+            className="inline-flex justify-center items-center gap-2 bg-accent text-white px-8 py-3.5 rounded-lg font-semibold hover:opacity-90 transition-all"
+          >
+            Créer mon espace gratuitement
+            <ArrowRight size={18} />
+          </Link>
+        </div>
       </section>
 
       <footer className="border-t border-border-dim px-4 sm:px-6 py-10 bg-background">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-text-muted font-medium">
           <Logo />
-          <span>© 2026 NexTask - Centralisez. Collaborez. Livrez.</span>
+          <span>© 2026 NexTask — Centralisez. Collaborez. Livrez.</span>
           <div className="flex gap-6">
             <a href="#" className="hover:text-text-main transition-colors">
               Mentions légales
