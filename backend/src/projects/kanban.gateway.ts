@@ -58,6 +58,13 @@ export interface TicketAssignedPayload {
   assignee?: { id: string; name: string };
 }
 
+export interface ColumnMovedPayload {
+  projectId: string;
+  columnId: string;
+  oldIndex: number;
+  newIndex: number;
+}
+
 @WebSocketGateway({
   cors: {
     origin: '*',
@@ -187,6 +194,18 @@ export class KanbanGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.broadcast.to(roomName).emit('ticket_assigned', payload);
     this.logger.log(
       `Sync : Ticket ${payload.ticketId} assigné par ${client.data.user.email}`,
+    );
+  }
+
+  @SubscribeMessage('move_column')
+  handleMoveColumn(
+    @MessageBody() payload: ColumnMovedPayload,
+    @ConnectedSocket() client: AuthenticatedSocket,
+  ) {
+    const roomName = `project:${payload.projectId}`;
+    client.broadcast.to(roomName).emit('column_moved', payload);
+    this.logger.log(
+      `Synchronisation : Colonne ${payload.columnId} déplacée par ${client.data.user.email}`,
     );
   }
 }

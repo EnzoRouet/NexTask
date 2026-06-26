@@ -9,6 +9,13 @@ import { useSocket } from "@/providers/socket.provider";
 const TICKET_STEP = 1000;
 const STEP_DIVISE = 2;
 
+export interface ColumnMovedPayload {
+  projectId: string;
+  columnId: string;
+  oldIndex: number;
+  newIndex: number;
+}
+
 interface TicketMovedPayload {
   projectId: string;
   ticketId: string;
@@ -204,6 +211,18 @@ const modifyTicketInBoard = (
   }));
 };
 
+const moveColumnInBoard = (
+  columns: BoardColumn[],
+  columnId: string,
+  newIndex: number,
+): BoardColumn[] => {
+  const currentOldIndex = columns.findIndex((col) => col.id === columnId);
+  if (currentOldIndex === -1) return columns;
+
+  // On utilise arrayMove pour refaire le tableau au propre
+  return arrayMove(columns, currentOldIndex, newIndex);
+};
+
 export function useKanbanDragAndDrop(
   projectId: string,
   initialColumns: BoardColumn[],
@@ -226,6 +245,14 @@ export function useKanbanDragAndDrop(
     if (!socket) return;
 
     socket.emit("join_project", { projectId });
+
+    socket.on("column_moved", (payload: ColumnMovedPayload) => {
+      if (payload.projectId !== projectId) return;
+
+      setColumns((prevColumns) =>
+        moveColumnInBoard(prevColumns, payload.columnId, payload.newIndex),
+      );
+    });
 
     socket.on("ticket_moved", (payload: TicketMovedPayload) => {
       if (payload.projectId !== projectId) return;
@@ -283,6 +310,7 @@ export function useKanbanDragAndDrop(
 
     // On nettoie tous les écouteurs quand on quitte la page pour pas faire bugger React avec des events en double
     return () => {
+      socket.off("column_moved");
       socket.off("ticket_moved");
       socket.off("ticket_created");
       socket.off("ticket_deleted");
@@ -293,6 +321,7 @@ export function useKanbanDragAndDrop(
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
+
     // On check le type de ce qu'on attrape pour pas confondre avec une colonne
     const type = active.data.current?.type;
 
@@ -307,59 +336,54 @@ export function useKanbanDragAndDrop(
     }
   };
 
-  const handleDragEnd = async (event: DragEndEvent) => {
-    setActiveTicket(null);
-    const { active, over } = event;
-
-    if (!over?.id || active.id === over.id) return;
-
-    // On récupère le type pour savoir si on manipule le board (colonnes) ou une colonne (tickets)
-    const activeType = active.data.current?.type;
-    const previousColumns = [...columns];
-
-    // Si on bouge une colonne
-    if (activeType === "Column") {
-      if (currentUserRole !== "OWNER" && currentUserRole !== "PO") {
-        alert(
-          "Action refusée : Vous n'avez pas les droits pour réorganiser le tableau.",
-        );
-        return;
-      }
-
-      const oldIndex = columns.findIndex((col) => col.id === active.id);
-      const newIndex = columns.findIndex((col) => col.id === over.id);
-
-      if (oldIndex === -1 || newIndex === -1) return;
-
-      // On décale le tableau des colonnes direct pour pas faire attendre l'utilisateur
-      const nextColumns = arrayMove(columns, oldIndex, newIndex);
-      setColumns(nextColumns);
-
-      const prevCol = nextColumns[newIndex - 1];
-      const nextCol = nextColumns[newIndex + 1];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const newPosition = calculateNewPosition(prevCol as any, nextCol as any);
-
-      try {
-        await apiFetch(
-          `/columns/${active.id}`,
-          {
-            method: "PATCH",
-            body: JSON.stringify({ position: newPosition }),
-          },
-          token,
-        );
-      } catch (error) {
-        console.error("Erreur serveur, rollback de la colonne", error);
-        setColumns(previousColumns);
-      }
+  const handleColumnMove = async (activeId: string, overId: string) => {
+    // Ici on vérifie si la personne a les bons droits pour réorganiser le tableau
+    if (currentUserRole !== "OWNER" && currentUserRole !== "PO") {
+      alert(
+        "Action refusée : Vous n'avez pas les droits pour réorganiser le tableau.",
+      );
       return;
     }
 
-    // Si on bouge un ticket
-    const ticketId = active.id.toString();
-    const droppedOnId = over.id.toString();
+    const oldIndex = columns.findIndex((col) => col.id === activeId);
+    const newIndex = columns.findIndex((col) => col.id === overId);
 
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const previousColumns = [...columns];
+
+    // On décale le tableau des colonnes direct pour pas faire attendre l'utilisateur
+    const nextColumns = arrayMove(columns, oldIndex, newIndex);
+    setColumns(nextColumns);
+
+    const prevCol = nextColumns[newIndex - 1];
+    const nextCol = nextColumns[newIndex + 1];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const newPosition = calculateNewPosition(prevCol as any, nextCol as any);
+
+    try {
+      await apiFetch(
+        `/columns/${activeId}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ position: newPosition }),
+        },
+        token,
+      );
+
+      socket?.emit("move_column", {
+        projectId,
+        columnId: activeId,
+        oldIndex,
+        newIndex,
+      });
+    } catch (error) {
+      console.error("Erreur serveur, rollback de la colonne", error);
+      setColumns(previousColumns);
+    }
+  };
+
+  const handleTicketMove = async (ticketId: string, droppedOnId: string) => {
     const { sourceColumnIndex, ticketToMove } = findTicketIndex(
       columns,
       ticketId,
@@ -384,6 +408,8 @@ export function useKanbanDragAndDrop(
       );
       return;
     }
+
+    const previousColumns = [...columns];
 
     // On crée un copie pour la manipuler et pas interférer avec les données de bases
     const newColumns = columns.map((col) => ({
@@ -446,6 +472,22 @@ export function useKanbanDragAndDrop(
     } catch (error) {
       console.error("[Drag Error]: Le serveur a refusé le déplacement", error);
       setColumns(previousColumns);
+    }
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    setActiveTicket(null);
+    const { active, over } = event;
+
+    if (!over?.id || active.id === over.id) return;
+
+    // On récupère le type pour savoir si on manipule le board ou une colonne
+    const activeType = active.data.current?.type;
+
+    if (activeType === "Column") {
+      await handleColumnMove(active.id.toString(), over.id.toString());
+    } else {
+      await handleTicketMove(active.id.toString(), over.id.toString());
     }
   };
 
