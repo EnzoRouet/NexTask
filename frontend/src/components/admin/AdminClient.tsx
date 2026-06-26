@@ -3,6 +3,7 @@
 import { useState } from "react";
 import AdminUsersTab from "./AdminUsersTable";
 import AdminProjectsTab from "./AdminProjectsTable";
+import { Users, FolderKanban } from "lucide-react";
 
 interface AdminClientProps {
   token: string;
@@ -16,37 +17,46 @@ export default function AdminClient({
   const [activeTab, setActiveTab] = useState<"USERS" | "PROJECTS">("USERS");
 
   return (
-    <div className="space-y-6">
-      <div className="flex space-x-4 border-b border-neutral-800 pb-4">
+    <div className="flex flex-col gap-6">
+      <div className="flex gap-2 border-b border-border-dim pb-px">
         <button
           onClick={() => setActiveTab("USERS")}
-          className={`px-4 py-2 font-semibold rounded-t-lg transition-colors ${
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold transition-all relative ${
             activeTab === "USERS"
-              ? "text-white border-b-2 border-blue-500"
-              : "text-neutral-500 hover:text-neutral-300"
+              ? "text-accent"
+              : "text-text-muted hover:text-white"
           }`}
         >
+          <Users className="w-4 h-4" />
           Utilisateurs
+          {activeTab === "USERS" && (
+            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-accent rounded-t-full shadow-[0_-2px_10px_rgba(59,130,246,0.5)]" />
+          )}
         </button>
         <button
           onClick={() => setActiveTab("PROJECTS")}
-          className={`px-4 py-2 font-semibold rounded-t-lg transition-colors ${
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold transition-all relative ${
             activeTab === "PROJECTS"
-              ? "text-white border-b-2 border-blue-500"
-              : "text-neutral-500 hover:text-neutral-300"
+              ? "text-accent"
+              : "text-text-muted hover:text-white"
           }`}
         >
+          <FolderKanban className="w-4 h-4" />
           Projets & Modération
+          {activeTab === "PROJECTS" && (
+            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-accent rounded-t-full shadow-[0_-2px_10px_rgba(59,130,246,0.5)]" />
+          )}
         </button>
       </div>
 
-      {activeTab === "USERS" && (
-        <AdminUsersTab token={token} currentUserId={currentUserId} />
-      )}
-
-      {activeTab === "PROJECTS" && (
-        <AdminProjectsTab token={token} currentUserId={currentUserId} />
-      )}
+      <div className="mt-2">
+        {activeTab === "USERS" && (
+          <AdminUsersTab token={token} currentUserId={currentUserId} />
+        )}
+        {activeTab === "PROJECTS" && (
+          <AdminProjectsTab token={token} currentUserId={currentUserId} />
+        )}
+      </div>
     </div>
   );
 }

@@ -1,26 +1,43 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-main: #0c0c0e; /* Un fond très légèrement plus profond */
+  --bg-surface: #18181b; /* Un gris Zinc plus standard et élégant */
+  --bg-surface-hover: #27272a;
+
+  --border-dim: #3f3f46; /* Des bordures BEAUCOUP plus visibles et nettes */
+  --border-focus: #52525b;
+
+  --text-main: #ffffff; /* Blanc pur pour les titres et données clés */
+  --text-muted: #a1a1aa; /* Un gris plus doux pour les descriptions */
+
+  --accent: #3b82f6; /* Bleu électrique vif */
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-background: var(--bg-main);
+  --color-surface: var(--bg-surface);
+  --color-surface-hover: var(--bg-surface-hover);
+  --color-border-dim: var(--border-dim);
+  --color-border-focus: var(--border-focus);
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-accent: var(--accent);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text-main);
+  font-family: var(--font-geist-sans);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--bg-surface) inset !important;
+  -webkit-text-fill-color: var(--text-main) !important;
+  caret-color: var(--text-main) !important;
+  transition: background-color 5000s ease-in-out 0s;
+  border-radius: 0.5rem;
 }

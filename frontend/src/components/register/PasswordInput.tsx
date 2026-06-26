@@ -35,34 +35,34 @@ export function PasswordInput({
           type={showPassword ? "text" : "password"}
           value={value}
           onChange={handleChange}
-          className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-green-500 text-black pr-10"
+          className="w-full h-11 px-3 pr-10 rounded-lg border border-white/10 text-sm outline-none transition-all bg-white/5 text-white placeholder:text-text-muted/50 focus:border-accent focus:bg-accent/5 focus:ring-1 focus:ring-accent/50 shadow-inner"
           required
         />
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-white transition-colors p-1 rounded-md hover:bg-white/5"
         >
           {showPassword ? (
-            <EyeOff className="w-5 h-5" />
+            <EyeOff className="w-4 h-4" />
           ) : (
-            <Eye className="w-5 h-5" />
+            <Eye className="w-4 h-4" />
           )}
         </button>
       </div>
 
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 flex flex-col gap-2">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+      <div className="bg-background border border-border-dim rounded-lg p-4 flex flex-col gap-3">
+        <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">
           Critères de sécurité
         </p>
-        <ul className="flex flex-col gap-1.5">
+        <ul className="flex flex-col gap-2">
           {PASSWORD_RULES.map((rule) => {
             const isValid = rule.regex.test(value);
             return (
               <li
                 key={rule.id}
                 className={`flex items-center gap-2 text-xs transition-colors duration-300 ${
-                  isValid ? "text-green-600 font-medium" : "text-gray-500"
+                  isValid ? "text-emerald-400 font-medium" : "text-text-muted"
                 }`}
               >
                 {isValid ? (
