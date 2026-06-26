@@ -10,6 +10,10 @@ import {
   PointerSensor,
   DragOverlay,
 } from "@dnd-kit/core";
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { CreateTicketModal } from "./CreateTicketModal";
 import { CreateColumnModal } from "./CreateColumnModal";
 import { InviteMemberModal } from "./InviteMemberModal";
@@ -32,6 +36,7 @@ export default function KanbanBoard({
   token: string;
   user: User;
 }>) {
+  // On configure les capteurs pour éviter que le drag ne s'active au moindre clic
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -44,32 +49,19 @@ export default function KanbanBoard({
   const [isCreateColumnModalOpen, setIsCreateColumnModalOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-  const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
 
   const isOwner = project.ownerId === user.id;
   const currentMember = project.members?.find((m) => m.userId === user.id);
   const projectRole = isOwner ? "OWNER" : currentMember?.role || "DEVELOPER";
 
-  const { columns, setColumns, handleDragEnd } = useKanbanDragAndDrop(
-    project.id,
-    project.columns,
-    token,
-    projectRole,
-  );
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleDragStart = (event: any) => {
-    const { active } = event;
-    const activeId = active.id;
-
-    for (const column of columns) {
-      const ticket = column.tickets.find((t) => t.id === activeId);
-      if (ticket) {
-        setActiveTicket(ticket);
-        return;
-      }
-    }
-  };
+  const {
+    columns,
+    setColumns,
+    activeTicket,
+    activeColumn,
+    handleDragStart,
+    handleDragEnd,
+  } = useKanbanDragAndDrop(project.id, project.columns, token, projectRole);
 
   return (
     <>
@@ -98,28 +90,42 @@ export default function KanbanBoard({
         </button>
       </div>
 
-      <div className="flex gap-6 overflow-x-auto pb-6 custom-scrollbar">
+      <div className="flex gap-6 overflow-x-auto pb-6 custom-scrollbar items-start">
         <DndContext
           sensors={sensors}
           onDragStart={handleDragStart}
-          onDragEnd={(event) => {
-            setActiveTicket(null);
-            handleDragEnd(event);
-          }}
+          onDragEnd={handleDragEnd}
           id="kanban-board"
         >
-          {columns.map((column) => (
-            <KanbanColumn
-              key={column.id}
-              column={column}
-              token={token}
-              user={user}
-              projectRole={projectRole}
-              onTicketClick={setSelectedTicket}
-            />
-          ))}
+          <SortableContext
+            items={columns.map((c) => c.id)}
+            strategy={horizontalListSortingStrategy}
+          >
+            {columns.map((column) => (
+              <KanbanColumn
+                key={column.id}
+                column={column}
+                token={token}
+                user={user}
+                projectRole={projectRole}
+                onTicketClick={setSelectedTicket}
+              />
+            ))}
+          </SortableContext>
 
           <DragOverlay>
+            {activeColumn ? (
+              <div className="rotate-2 opacity-80 scale-105 shadow-2xl cursor-grabbing transition-transform">
+                <KanbanColumn
+                  column={activeColumn}
+                  token={token}
+                  user={user}
+                  projectRole={projectRole}
+                  onTicketClick={() => {}}
+                />
+              </div>
+            ) : null}
+
             {activeTicket ? (
               <div className="rotate-2 opacity-90 shadow-2xl cursor-grabbing">
                 <TicketCard
@@ -135,7 +141,6 @@ export default function KanbanBoard({
         </DndContext>
       </div>
 
-      {/* MODALES */}
       <CreateTicketModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}

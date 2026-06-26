@@ -1,6 +1,10 @@
 "use client";
 
-import { useSortable, SortableContext } from "@dnd-kit/sortable";
+import {
+  useSortable,
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { TicketCard } from "./TicketCard";
 import { BoardColumn } from "@/types/boardColumn";
@@ -116,17 +120,22 @@ export default function KanbanColumn({
             </div>
           )}
 
-          <SortableContext items={column.tickets.map((t) => t.id)}>
-            {column.tickets.map((ticket) => (
-              <TicketCard
-                key={ticket.id}
-                ticket={ticket}
-                token={token}
-                currentUser={user}
-                projectRole={projectRole}
-                onTicketClick={onTicketClick}
-              />
-            ))}
+          <SortableContext
+            items={column.tickets.map((t) => t.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="flex flex-col gap-2">
+              {column.tickets.map((ticket) => (
+                <TicketCard
+                  key={ticket.id}
+                  ticket={ticket}
+                  token={token}
+                  currentUser={user}
+                  projectRole={projectRole}
+                  onTicketClick={onTicketClick}
+                />
+              ))}
+            </div>
           </SortableContext>
         </ul>
       </div>

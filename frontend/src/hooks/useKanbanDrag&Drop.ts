@@ -233,6 +233,7 @@ export function useKanbanDragAndDrop(
   const [prevInitialColumns, setPrevInitialColumns] =
     useState<BoardColumn[]>(initialColumns);
   const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
+  const [activeColumn, setActiveColumn] = useState<BoardColumn | null>(null);
 
   const { socket } = useSocket();
 
@@ -321,17 +322,19 @@ export function useKanbanDragAndDrop(
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
-
-    // On check le type de ce qu'on attrape pour pas confondre avec une colonne
     const type = active.data.current?.type;
 
-    if (type === "Ticket") {
-      for (const column of columns) {
-        const ticket = column.tickets.find((t) => t.id === active.id);
-        if (ticket) {
-          setActiveTicket(ticket);
-          return;
-        }
+    if (type === "Column") {
+      const column = columns.find((c) => c.id === active.id);
+      if (column) setActiveColumn(column);
+      return;
+    }
+
+    for (const column of columns) {
+      const ticket = column.tickets.find((t) => t.id === active.id);
+      if (ticket) {
+        setActiveTicket(ticket);
+        return;
       }
     }
   };
@@ -477,6 +480,7 @@ export function useKanbanDragAndDrop(
 
   const handleDragEnd = async (event: DragEndEvent) => {
     setActiveTicket(null);
+    setActiveColumn(null);
     const { active, over } = event;
 
     if (!over?.id || active.id === over.id) return;
@@ -495,6 +499,7 @@ export function useKanbanDragAndDrop(
     columns,
     setColumns,
     activeTicket,
+    activeColumn,
     handleDragStart,
     handleDragEnd,
   };
