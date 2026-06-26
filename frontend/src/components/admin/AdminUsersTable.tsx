@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { apiFetch } from "@/lib/api";
 import UserDetailModal from "./UserDetailModal";
+import { Loader2 } from "lucide-react";
 
 interface User {
   id: string;
@@ -27,19 +28,14 @@ export default function AdminUsersTab({
 
   useEffect(() => {
     let isMounted = true;
-
     const fetchUsers = async () => {
       try {
         const data = await apiFetch<User[]>("/admin/users", {}, token);
-        if (isMounted) {
-          setUsers(data);
-        }
+        if (isMounted) setUsers(data);
       } catch {
         console.error("Erreur de récupération des utilisateurs");
       } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
+        if (isMounted) setIsLoading(false);
       }
     };
     fetchUsers();
@@ -52,32 +48,52 @@ export default function AdminUsersTab({
     setRefreshTrigger((prev) => prev + 1);
   };
 
-  if (isLoading)
-    return <div className="text-neutral-400">Chargement des systèmes...</div>;
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-12 text-text-muted gap-3">
+        <Loader2 className="w-5 h-5 animate-spin text-accent" /> Chargement des
+        profils...
+      </div>
+    );
+  }
 
   return (
     <>
-      <div className="bg-[#151921] rounded-lg border border-neutral-800 overflow-hidden shadow-xl">
-        <table className="w-full text-left">
-          <thead className="bg-[#0D1016] border-b border-neutral-800 text-neutral-400 text-sm uppercase">
+      <div className="bg-surface rounded-xl border border-border-dim overflow-hidden shadow-sm">
+        <table className="w-full text-left border-collapse">
+          <thead className="bg-white/2 border-b border-border-dim">
             <tr>
-              <th className="px-6 py-4">Nom</th>
-              <th className="px-6 py-4">Email</th>
-              <th className="px-6 py-4 text-right">Rôle</th>
+              <th className="px-6 py-4 text-[10px] font-semibold text-text-muted uppercase tracking-wider">
+                Identité
+              </th>
+              <th className="px-6 py-4 text-[10px] font-semibold text-text-muted uppercase tracking-wider">
+                Email
+              </th>
+              <th className="px-6 py-4 text-[10px] font-semibold text-text-muted uppercase tracking-wider text-right">
+                Rôle
+              </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-800 text-neutral-200">
+          <tbody className="divide-y divide-border-dim">
             {users.map((user) => (
               <tr
                 key={user.id}
                 onClick={() => setSelectedUserId(user.id)}
-                className="hover:bg-neutral-800/50 transition-colors cursor-pointer"
+                className="hover:bg-surface-hover transition-colors cursor-pointer"
               >
-                <td className="px-6 py-4 font-medium">{user.name}</td>
-                <td className="px-6 py-4 text-neutral-400">{user.email}</td>
+                <td className="px-6 py-4 text-sm font-medium text-white">
+                  {user.name}
+                </td>
+                <td className="px-6 py-4 text-sm text-text-muted font-mono">
+                  {user.email}
+                </td>
                 <td className="px-6 py-4 text-right">
                   <span
-                    className={`px-2 py-1 rounded text-xs font-bold ${user.role === "ADMIN" ? "bg-red-500/20 text-red-500" : "bg-blue-500/20 text-blue-500"}`}
+                    className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${
+                      user.role === "ADMIN"
+                        ? "bg-red-500/10 text-red-500 border-red-500/20"
+                        : "bg-accent/10 text-accent border-accent/20"
+                    }`}
                   >
                     {user.role}
                   </span>
