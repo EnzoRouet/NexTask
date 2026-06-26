@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { DragEndEvent } from "@dnd-kit/core";
+import { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
 import { BoardColumn } from "@/types/boardColumn";
 import { Ticket } from "@/types/tickets";
 import { apiFetch } from "@/lib/api";
@@ -212,6 +213,7 @@ export function useKanbanDragAndDrop(
   const [columns, setColumns] = useState<BoardColumn[]>(initialColumns);
   const [prevInitialColumns, setPrevInitialColumns] =
     useState<BoardColumn[]>(initialColumns);
+  const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
 
   const { socket } = useSocket();
 
@@ -289,11 +291,72 @@ export function useKanbanDragAndDrop(
     };
   }, [socket, projectId]);
 
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    // On check le type de ce qu'on attrape pour pas confondre avec une colonne
+    const type = active.data.current?.type;
+
+    if (type === "Ticket") {
+      for (const column of columns) {
+        const ticket = column.tickets.find((t) => t.id === active.id);
+        if (ticket) {
+          setActiveTicket(ticket);
+          return;
+        }
+      }
+    }
+  };
+
   const handleDragEnd = async (event: DragEndEvent) => {
+    setActiveTicket(null);
     const { active, over } = event;
 
-    if (!over?.id) return;
+    if (!over?.id || active.id === over.id) return;
 
+    // On récupère le type pour savoir si on manipule le board (colonnes) ou une colonne (tickets)
+    const activeType = active.data.current?.type;
+    const previousColumns = [...columns];
+
+    // Si on bouge une colonne
+    if (activeType === "Column") {
+      if (currentUserRole !== "OWNER" && currentUserRole !== "PO") {
+        alert(
+          "Action refusée : Vous n'avez pas les droits pour réorganiser le tableau.",
+        );
+        return;
+      }
+
+      const oldIndex = columns.findIndex((col) => col.id === active.id);
+      const newIndex = columns.findIndex((col) => col.id === over.id);
+
+      if (oldIndex === -1 || newIndex === -1) return;
+
+      // On décale le tableau des colonnes direct pour pas faire attendre l'utilisateur
+      const nextColumns = arrayMove(columns, oldIndex, newIndex);
+      setColumns(nextColumns);
+
+      const prevCol = nextColumns[newIndex - 1];
+      const nextCol = nextColumns[newIndex + 1];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const newPosition = calculateNewPosition(prevCol as any, nextCol as any);
+
+      try {
+        await apiFetch(
+          `/columns/${active.id}`,
+          {
+            method: "PATCH",
+            body: JSON.stringify({ position: newPosition }),
+          },
+          token,
+        );
+      } catch (error) {
+        console.error("Erreur serveur, rollback de la colonne", error);
+        setColumns(previousColumns);
+      }
+      return;
+    }
+
+    // Si on bouge un ticket
     const ticketId = active.id.toString();
     const droppedOnId = over.id.toString();
 
@@ -321,8 +384,6 @@ export function useKanbanDragAndDrop(
       );
       return;
     }
-
-    const previousColumns = [...columns];
 
     // On crée un copie pour la manipuler et pas interférer avec les données de bases
     const newColumns = columns.map((col) => ({
@@ -391,6 +452,8 @@ export function useKanbanDragAndDrop(
   return {
     columns,
     setColumns,
+    activeTicket,
+    handleDragStart,
     handleDragEnd,
   };
 }
