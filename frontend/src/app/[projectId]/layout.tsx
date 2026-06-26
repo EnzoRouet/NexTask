@@ -23,7 +23,7 @@ export default async function ProjectLayout({
 
         <nav className="flex-1 space-y-2">
           <Link
-            href="/"
+            href="/dashboard"
             className="block p-3 rounded-md hover:bg-surface-hover transition-colors text-sm text-text-muted hover:text-text-main"
           >
             ← Mes projets
