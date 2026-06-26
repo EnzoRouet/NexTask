@@ -10,6 +10,7 @@ import { ColumnsModule } from './columns/columns.module';
 import { ProjectMembersModule } from './project-members/project-members.module';
 import { DocumentationModule } from './documentation/documentation.module';
 import { AdminModule } from './admin/admin.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AdminModule } from './admin/admin.module';
     ProjectMembersModule,
     DocumentationModule,
     AdminModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
