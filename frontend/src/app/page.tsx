@@ -390,8 +390,8 @@ export default function LandingPage() {
         </div>
 
         <div className="mt-20 relative mx-auto max-w-4xl">
-          <div className="rounded-xl border border-border-dim bg-surface overflow-hidden shadow-2xl shadow-blue-900/20">
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-border-dim bg-black/40">
+          <div className="rounded-xl border border-border-dim bg-surface overflow-hidden shadow-2xl shadow-black/60">
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-border-dim bg-background/50">
               <div className="flex gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
                 <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
@@ -422,7 +422,6 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
-              {/* Main */}
               <div className="flex-1 p-6 overflow-hidden bg-background">
                 <div className="flex items-center justify-between mb-6">
                   <div>
@@ -434,7 +433,7 @@ export default function LandingPage() {
                     </p>
                   </div>
                   <div className="flex gap-3">
-                    <div className="text-xs font-medium bg-accent text-white px-4 py-2 rounded-md">
+                    <div className="text-xs font-medium bg-accent text-white px-4 py-2 rounded-md shadow-lg shadow-accent/20">
                       + Nouveau Ticket
                     </div>
                   </div>
@@ -443,7 +442,7 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-accent/10 blur-[120px] -z-10 rounded-full" />
+          <div className="absolute -inset-px rounded-xl bg-linear-to-b from-accent/10 to-transparent pointer-events-none" />
         </div>
       </section>
 
