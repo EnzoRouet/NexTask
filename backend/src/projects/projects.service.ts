@@ -64,6 +64,9 @@ export class ProjectsService {
           select: { id: true, name: true },
         },
         members: {
+          where: {
+            user: { deletedAt: null },
+          },
           include: {
             user: {
               select: {

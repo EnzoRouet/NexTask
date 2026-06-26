@@ -95,13 +95,22 @@ export class ProjectMembersService {
     }
 
     const members = await this.prisma.projectMember.findMany({
-      where: { projectId: projectId },
+      where: {
+        projectId: projectId,
+        user: {
+          deletedAt: null,
+        },
+      },
       include: {
         user: {
-          select: { id: true, name: true },
+          select: { id: true, name: true, deletedAt: true },
         },
       },
     });
+
+    const activeMembers = members.filter(
+      (member) => member.user.deletedAt === null,
+    );
 
     const ownerAsMember = {
       id: `owner-${project.owner.id}`,
@@ -112,7 +121,7 @@ export class ProjectMembersService {
       role: 'OWNER',
     };
 
-    return [ownerAsMember, ...members];
+    return [ownerAsMember, ...activeMembers];
   }
 
   async updateRole(

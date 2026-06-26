@@ -161,14 +161,17 @@ describe('ProjectMembersService', () => {
   });
 
   describe('findAll', () => {
-    it('should return an aggregated list of the owner and members', async () => {
+    it('should return an aggregated list of the owner and active members', async () => {
       // Arrange
       const mockProject = {
         id: projectId,
         owner: { id: 'owner-1', name: 'Alice' },
       };
       const mockMembers = [
-        { id: 'member-1', user: { id: 'user-2', name: 'Bob' } },
+        {
+          id: 'member-1',
+          user: { id: 'user-2', name: 'Bob', deletedAt: null },
+        },
       ];
 
       prisma.deleteFilter.project.findUnique.mockResolvedValue(mockProject);
@@ -189,12 +192,46 @@ describe('ProjectMembersService', () => {
         },
         ...mockMembers,
       ]);
-      expect(prisma.deleteFilter.project.findUnique).toHaveBeenCalledWith({
-        where: { id: projectId },
+
+      expect(prisma.projectMember.findMany).toHaveBeenCalledWith({
+        where: {
+          projectId: projectId,
+          user: { deletedAt: null },
+        },
         include: {
-          owner: { select: { id: true, name: true } },
+          user: { select: { id: true, name: true, deletedAt: true } },
         },
       });
+    });
+
+    it('should filter out members whose user account is soft-deleted', async () => {
+      // Arrange
+      const mockProject = {
+        id: projectId,
+        owner: { id: 'owner-1', name: 'Alice' },
+      };
+
+      const validMember = {
+        id: 'member-1',
+        user: { id: 'user-2', name: 'Bob', deletedAt: null },
+      };
+      const deletedMember = {
+        id: 'member-2',
+        user: { id: 'user-3', name: 'Charlie', deletedAt: new Date() },
+      };
+
+      prisma.deleteFilter.project.findUnique.mockResolvedValue(mockProject);
+      prisma.projectMember.findMany.mockResolvedValue([
+        validMember,
+        deletedMember,
+      ]);
+
+      // Act
+      const result = await service.findAll(projectId);
+
+      // Assert
+      expect(result.length).toBe(2);
+      expect(result[1].user.name).toBe('Bob');
     });
 
     it('should throw a NotFoundException if the project does not exist', async () => {
