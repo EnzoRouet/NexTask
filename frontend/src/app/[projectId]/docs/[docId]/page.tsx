@@ -7,6 +7,7 @@ import { Project } from "@/types/projects";
 import { DocumentationEditor } from "@/components/wiki/DocumentationEditor";
 import { DeleteDocButton } from "@/components/wiki/DeleteDocButton";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 interface EditorPageProps {
   params: Promise<{ projectId: string; docId: string }>;
@@ -47,7 +48,6 @@ export default async function EditorPage({
 
   const handleSave = async (data: { title: string; content: string }) => {
     "use server";
-
     const serverSession = await getServerSession(authOptions);
     if (!serverSession?.access_token) throw new Error("Non autorisé");
 
@@ -65,13 +65,14 @@ export default async function EditorPage({
   };
 
   return (
-    <div className="min-h-[calc(100vh)] -m-8 p-12 bg-[#242124] text-gray-200">
-      <div className="max-w-4xl mx-auto mb-6 flex justify-between items-center">
+    <div className="min-h-full bg-background text-text-main p-4 md:p-8">
+      <div className="max-w-4xl mx-auto mb-8 flex justify-between items-center">
         <Link
           href={`/${projectId}/docs`}
-          className="text-sm text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-2"
+          className="text-sm text-text-muted hover:text-white transition-colors flex items-center gap-2 group"
         >
-          <span>←</span> Retour au Wiki
+          <ArrowLeft className="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" />
+          Retour au Wiki
         </Link>
 
         {canDelete && (

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { PasswordInput } from "@/components/register/PasswordInput";
+import { Loader2 } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -53,48 +54,57 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center bg-gray-100">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-lg shadow-md w-96"
+        className="bg-surface border border-border-dim p-8 rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.5)] w-full max-w-md flex flex-col gap-6"
       >
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-          Inscription NexTask
-        </h2>
+        <div className="text-center mb-2">
+          <h2 className="text-2xl font-bold text-white tracking-tight">
+            Rejoindre Nex<span className="text-accent">Task</span>
+          </h2>
+          <p className="text-sm text-text-muted mt-2">
+            Créez votre compte pour commencer à gérer vos projets.
+          </p>
+        </div>
 
         {error && (
-          <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
+          <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center rounded-lg font-medium">
+            {error}
+          </div>
         )}
 
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Nom complet
+        <div className="flex flex-col gap-1.5">
+          <label className="block text-[11px] font-semibold text-text-muted uppercase tracking-wider">
+            Nom complet <span className="text-accent">*</span>
           </label>
           <input
             type="text"
             value={name}
+            placeholder="Ex: Jean Dupont"
             onChange={(e) => setName(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-green-500 text-black"
+            className="w-full h-11 px-3 rounded-lg border border-white/10 text-sm outline-none transition-all bg-white/5 text-white placeholder:text-text-muted/50 focus:border-accent focus:bg-accent/5 focus:ring-1 focus:ring-accent/50 shadow-inner"
             required
           />
         </div>
 
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Email
+        <div className="flex flex-col gap-1.5">
+          <label className="block text-[11px] font-semibold text-text-muted uppercase tracking-wider">
+            Email <span className="text-accent">*</span>
           </label>
           <input
             type="email"
             value={email}
+            placeholder="jean.dupont@coda.fr"
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-green-500 text-black"
+            className="w-full h-11 px-3 rounded-lg border border-white/10 text-sm outline-none transition-all bg-white/5 text-white placeholder:text-text-muted/50 focus:border-accent focus:bg-accent/5 focus:ring-1 focus:ring-accent/50 shadow-inner"
             required
           />
         </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Mot de passe
+        <div className="flex flex-col gap-1.5">
+          <label className="block text-[11px] font-semibold text-text-muted uppercase tracking-wider">
+            Mot de passe <span className="text-accent">*</span>
           </label>
           <PasswordInput
             value={password}
@@ -108,15 +118,25 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={isLoading || !isPasswordValid}
-          className="w-full bg-green-600 text-white font-bold py-2 px-4 rounded hover:bg-green-700 transition-colors disabled:bg-green-400 disabled:cursor-not-allowed"
+          className="w-full flex justify-center items-center gap-2 bg-accent text-white font-medium py-2.5 px-4 rounded-lg hover:bg-blue-500 transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed mt-2"
         >
-          {isLoading ? "Création en cours..." : "Créer mon compte"}
+          {isLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Création en cours...
+            </>
+          ) : (
+            "Créer mon compte"
+          )}
         </button>
 
-        <div className="mt-4 text-center">
-          <p className="text-sm text-gray-600">
+        <div className="mt-2 text-center pt-4 border-t border-border-dim">
+          <p className="text-sm text-text-muted">
             Déjà un compte ?{" "}
-            <Link href="/login" className="text-blue-600 hover:underline">
+            <Link
+              href="/login"
+              className="text-white hover:text-accent font-medium transition-colors"
+            >
               Se connecter
             </Link>
           </p>

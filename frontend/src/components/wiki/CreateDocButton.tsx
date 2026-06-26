@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import { DocSummary } from "@/types/documentation";
+import { Loader2 } from "lucide-react";
 
 interface CreateDocButtonProps {
   projectId: string;
@@ -25,7 +26,6 @@ export const CreateDocButton = ({ projectId, token }: CreateDocButtonProps) => {
         },
         token,
       );
-
       router.push(`/${projectId}/docs/${newDoc.id}`);
     } catch (error) {
       console.error("Erreur lors de la création du document :", error);
@@ -37,9 +37,19 @@ export const CreateDocButton = ({ projectId, token }: CreateDocButtonProps) => {
     <button
       onClick={handleCreate}
       disabled={isLoading}
-      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition disabled:opacity-50 flex items-center justify-center min-w-[160px]"
+      className="flex items-center justify-center gap-2 px-4 py-2 bg-accent text-white text-sm font-medium rounded-lg transition-all hover:opacity-90 shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_25px_rgba(59,130,246,0.4)] disabled:opacity-50 min-w-40"
     >
-      {isLoading ? "Création..." : "+ Nouveau Document"}
+      {isLoading ? (
+        <>
+          <Loader2 className="w-4 h-4 animate-spin" />
+          Création...
+        </>
+      ) : (
+        <>
+          <span className="text-lg leading-none mb-0.5">+</span> Nouveau
+          Document
+        </>
+      )}
     </button>
   );
 };

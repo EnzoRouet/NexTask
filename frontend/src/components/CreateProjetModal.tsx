@@ -1,3 +1,5 @@
+"use client";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X, Loader2 } from "lucide-react";
@@ -47,7 +49,6 @@ export function CreateProjectModal({
 
       reset();
       onClose();
-
       router.refresh();
     } catch (error) {
       console.error("Erreur système :", error);
@@ -57,18 +58,18 @@ export function CreateProjectModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-neutral-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md flex flex-col overflow-hidden">
-        <div className="p-6 border-b border-neutral-100 flex justify-between items-center bg-white">
-          <h2 className="text-xl font-bold text-neutral-900">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-all">
+      <div className="bg-surface border border-border-dim rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.5)] w-full max-w-md flex flex-col overflow-hidden">
+        <div className="p-5 border-b border-white/5 flex justify-between items-center bg-white/2">
+          <h2 className="text-lg font-bold text-white tracking-tight">
             Créer un nouveau projet
           </h2>
           <button
             onClick={onClose}
             disabled={isSubmitting}
-            className="text-neutral-400 hover:text-neutral-700 transition-colors disabled:opacity-50"
+            className="text-text-muted hover:text-white transition-colors p-1.5 rounded-md hover:bg-white/10 disabled:opacity-50"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -76,47 +77,47 @@ export function CreateProjectModal({
           onSubmit={handleSubmit(onSubmit, (erreursZod) =>
             console.log("Zod bloque car :", erreursZod),
           )}
-          className="p-6 flex flex-col gap-4"
+          className="p-6 flex flex-col gap-6"
         >
-          <div>
+          <div className="flex flex-col gap-2">
             <label
               htmlFor="title"
-              className="block text-sm font-medium text-neutral-700 mb-1"
+              className="block text-xs font-semibold text-text-muted uppercase tracking-wider"
             >
-              Titre du projet <span className="text-red-500">*</span>
+              Titre du projet <span className="text-accent">*</span>
             </label>
             <input
               id="title"
               type="text"
               placeholder="Ex: Refonte du site vitrine"
               {...register("name")}
-              className={`w-full h-10 px-3 rounded-lg border text-sm outline-none transition-all ${
+              className={`w-full h-11 px-3 rounded-lg border text-sm outline-none transition-all bg-white/5 text-white placeholder:text-text-muted/50 shadow-inner ${
                 errors.name
-                  ? "border-red-500 focus:ring-2 focus:ring-red-200"
-                  : "border-neutral-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  ? "border-red-500/50 focus:border-red-500 focus:bg-red-500/5 focus:ring-1 focus:ring-red-500/50"
+                  : "border-white/10 focus:border-accent focus:bg-accent/5 focus:ring-1 focus:ring-accent/50"
               }`}
             />
 
             {errors.name && (
-              <p className="mt-1 flex text-xs text-red-500 font-medium">
+              <p className="mt-1 text-xs text-red-400 font-medium">
                 {errors.name.message}
               </p>
             )}
           </div>
 
-          <div className="flex justify-end gap-3 mt-4">
+          <div className="flex justify-end gap-3 mt-2">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium text-text-main bg-transparent border border-white/10 rounded-lg hover:bg-white/5 hover:text-white transition-colors disabled:opacity-50"
             >
               Annuler
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-accent rounded-lg transition-all hover:bg-blue-500 disabled:opacity-50 shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_25px_rgba(59,130,246,0.5)]"
             >
               {isSubmitting ? (
                 <>

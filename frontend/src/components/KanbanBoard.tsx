@@ -73,30 +73,32 @@ export default function KanbanBoard({
 
   return (
     <>
-      <div className="flex gap-4 mb-6 flex-wrap">
+      <div className="flex gap-3 mb-8 flex-wrap items-center">
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-700 transition-colors"
+          className="bg-accent text-white px-3.5 py-1.5 text-sm font-medium rounded-md shadow-sm transition-all hover:opacity-90 flex items-center gap-1.5"
         >
-          + Nouveau Ticket
+          <span className="text-lg leading-none mb-0.5">+</span> Nouveau Ticket
         </button>
 
         <button
           onClick={() => setIsCreateColumnModalOpen(true)}
-          className="bg-neutral-800 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-neutral-900 transition-colors"
+          className="bg-surface border border-border-dim text-text-main px-3.5 py-1.5 text-sm font-medium rounded-md transition-all hover:bg-surface-hover hover:border-border-focus flex items-center gap-1.5"
         >
-          + Nouvelle Colonne
+          <span className="text-lg leading-none mb-0.5 text-text-muted">+</span>{" "}
+          Nouvelle Colonne
         </button>
 
         <button
           onClick={() => setIsInviteModalOpen(true)}
-          className="bg-emerald-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-emerald-700 transition-colors"
+          className="bg-surface border border-border-dim text-text-main px-3.5 py-1.5 text-sm font-medium rounded-md transition-all hover:bg-surface-hover hover:border-border-focus flex items-center gap-1.5 ml-auto"
         >
-          + Inviter un membre
+          <span className="text-lg leading-none mb-0.5 text-text-muted">+</span>{" "}
+          Inviter un membre
         </button>
       </div>
 
-      <div className="flex gap-6 overflow-x-auto pb-4">
+      <div className="flex gap-6 overflow-x-auto pb-6 custom-scrollbar">
         <DndContext
           sensors={sensors}
           onDragStart={handleDragStart}
@@ -119,18 +121,21 @@ export default function KanbanBoard({
 
           <DragOverlay>
             {activeTicket ? (
-              <TicketCard
-                ticket={activeTicket}
-                token={token}
-                currentUser={user}
-                projectRole={projectRole}
-                onTicketClick={() => {}}
-              />
+              <div className="rotate-2 opacity-90 shadow-2xl cursor-grabbing">
+                <TicketCard
+                  ticket={activeTicket}
+                  token={token}
+                  currentUser={user}
+                  projectRole={projectRole}
+                  onTicketClick={() => {}}
+                />
+              </div>
             ) : null}
           </DragOverlay>
         </DndContext>
       </div>
 
+      {/* MODALES */}
       <CreateTicketModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
