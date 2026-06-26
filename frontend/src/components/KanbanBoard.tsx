@@ -19,8 +19,10 @@ import { CreateColumnModal } from "./CreateColumnModal";
 import { InviteMemberModal } from "./InviteMemberModal";
 import { Ticket } from "@/types/tickets";
 import { TicketDetailsModal } from "./TicketDetailsModal";
+import { EditColumnModal } from "./EditColumnModal";
 import { useKanbanDragAndDrop } from "@/hooks/useKanbanDrag&Drop";
 import { TicketCard } from "./TicketCard";
+import { BoardColumn } from "@/types/boardColumn";
 
 export interface User {
   id: string;
@@ -36,7 +38,6 @@ export default function KanbanBoard({
   token: string;
   user: User;
 }>) {
-  // On configure les capteurs pour éviter que le drag ne s'active au moindre clic
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -49,6 +50,7 @@ export default function KanbanBoard({
   const [isCreateColumnModalOpen, setIsCreateColumnModalOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [editingColumn, setEditingColumn] = useState<BoardColumn | null>(null);
 
   const isOwner = project.ownerId === user.id;
   const currentMember = project.members?.find((m) => m.userId === user.id);
@@ -109,6 +111,7 @@ export default function KanbanBoard({
                 user={user}
                 projectRole={projectRole}
                 onTicketClick={setSelectedTicket}
+                onEditClick={setEditingColumn}
               />
             ))}
           </SortableContext>
@@ -122,6 +125,7 @@ export default function KanbanBoard({
                   user={user}
                   projectRole={projectRole}
                   onTicketClick={() => {}}
+                  onEditClick={() => {}}
                 />
               </div>
             ) : null}
@@ -171,6 +175,21 @@ export default function KanbanBoard({
         onClose={() => setSelectedTicket(null)}
         ticket={selectedTicket}
         token={token}
+      />
+
+      <EditColumnModal
+        key={editingColumn?.id || "empty-edit-modal"}
+        isOpen={!!editingColumn}
+        onClose={() => setEditingColumn(null)}
+        column={editingColumn}
+        token={token}
+        onSuccess={(updatedColumn) => {
+          setColumns(
+            columns.map((col) =>
+              col.id === updatedColumn.id ? { ...col, ...updatedColumn } : col,
+            ),
+          );
+        }}
       />
     </>
   );

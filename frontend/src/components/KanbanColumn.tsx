@@ -10,7 +10,7 @@ import { TicketCard } from "./TicketCard";
 import { BoardColumn } from "@/types/boardColumn";
 import { apiFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { Trash2, GripHorizontal } from "lucide-react";
+import { Trash2, GripHorizontal, Pencil, Lock } from "lucide-react";
 import { User } from "./KanbanBoard";
 import { Ticket } from "@/types/tickets";
 import { useState } from "react";
@@ -22,6 +22,7 @@ interface KanbanColumnProps {
   user: User;
   projectRole: "OWNER" | "PO" | "DEVELOPER";
   onTicketClick: (ticket: Ticket) => void;
+  onEditClick: (column: BoardColumn) => void;
 }
 
 export default function KanbanColumn({
@@ -30,12 +31,14 @@ export default function KanbanColumn({
   user,
   projectRole,
   onTicketClick,
+  onEditClick,
 }: Readonly<KanbanColumnProps>) {
   const router = useRouter();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // 1. On remplace useDroppable par useSortable
+  const canEdit = projectRole === "OWNER" || projectRole === "PO";
+
   const {
     setNodeRef,
     attributes,
@@ -45,22 +48,16 @@ export default function KanbanColumn({
     isDragging,
   } = useSortable({
     id: column.id,
-    // On injecte le type exact pour que le Board le reconnaisse
     data: {
       type: "Column",
       column,
     },
   });
 
-  // 2. On calcule le style de déplacement physique
   const style = {
     transition,
     transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.3 : 1,
-  };
-
-  const handleDeleteClick = () => {
-    setIsDeleteModalOpen(true);
   };
 
   const executeDeleteColumn = async () => {
@@ -90,25 +87,41 @@ export default function KanbanColumn({
         >
           <div className="flex items-center gap-2">
             <GripHorizontal className="w-4 h-4 text-text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
-            <h2 className="text-sm font-bold text-white tracking-wide">
+            <h2 className="text-sm font-bold text-white tracking-wide flex items-center gap-1.5">
               {column.name}
+              {column.isLocked && <Lock className="w-3 h-3 text-red-400" />}
             </h2>
             <span className="text-[11px] font-mono text-text-muted bg-surface px-1.5 py-0.5 rounded border border-border-dim shadow-inner">
               {column.tickets.length}
             </span>
           </div>
 
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDeleteClick();
-            }}
-            onPointerDown={(e) => e.stopPropagation()}
-            className="text-text-muted hover:text-red-400 transition-all duration-200 p-1.5 rounded-md hover:bg-surface-hover opacity-0 group-hover:opacity-100 focus:opacity-100"
-            title="Supprimer la colonne"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+          {canEdit && (
+            <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditClick(column);
+                }}
+                onPointerDown={(e) => e.stopPropagation()}
+                className="text-text-muted hover:text-accent transition-all duration-200 p-1.5 rounded-md hover:bg-surface-hover"
+                title="Éditer la colonne"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsDeleteModalOpen(true);
+                }}
+                onPointerDown={(e) => e.stopPropagation()}
+                className="text-text-muted hover:text-red-400 transition-all duration-200 p-1.5 rounded-md hover:bg-surface-hover"
+                title="Supprimer la colonne"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
         </div>
 
         <ul className="relative bg-surface/50 p-2 rounded-xl min-h-62.5 border border-border-dim flex flex-col gap-2 transition-colors">
@@ -140,15 +153,18 @@ export default function KanbanColumn({
         </ul>
       </div>
 
-      <ConfirmModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={executeDeleteColumn}
-        title="Supprimer la colonne"
-        description={`Êtes-vous sûr de vouloir supprimer la colonne "${column.name}" ? Elle doit impérativement être vide pour être supprimée.`}
-        confirmText="Supprimer"
-        isLoading={isDeleting}
-      />
+      {canEdit && (
+        <ConfirmModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={executeDeleteColumn}
+          title="Supprimer la colonne"
+          description={`Êtes-vous sûr de vouloir supprimer la colonne "${column.name}" ? Elle doit impérativement être vide pour être supprimée.`}
+          confirmText="Supprimer"
+          isLoading={isDeleting}
+          isDestructive={true}
+        />
+      )}
     </>
   );
 }
