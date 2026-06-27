@@ -1,7 +1,7 @@
 "use client";
 
 import { Project } from "@/types/projects";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import KanbanColumn from "./KanbanColumn";
 import {
   DndContext,
@@ -23,6 +23,7 @@ import { EditColumnModal } from "./EditColumnModal";
 import { useKanbanDragAndDrop } from "@/hooks/useKanbanDrag&Drop";
 import { TicketCard } from "./TicketCard";
 import { BoardColumn } from "@/types/boardColumn";
+import { AlertCircle, X } from "lucide-react";
 
 export interface User {
   id: string;
@@ -51,6 +52,23 @@ export default function KanbanBoard({
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [editingColumn, setEditingColumn] = useState<BoardColumn | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const errorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleError = (message: string) => {
+    setErrorMsg(message);
+    if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
+
+    errorTimeoutRef.current = setTimeout(() => {
+      setErrorMsg(null);
+    }, 4000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
+    };
+  }, []);
 
   const isOwner = project.ownerId === user.id;
   const currentMember = project.members?.find((m) => m.userId === user.id);
@@ -63,7 +81,13 @@ export default function KanbanBoard({
     activeColumn,
     handleDragStart,
     handleDragEnd,
-  } = useKanbanDragAndDrop(project.id, project.columns, token, projectRole);
+  } = useKanbanDragAndDrop(
+    project.id,
+    project.columns,
+    token,
+    projectRole,
+    handleError,
+  );
 
   return (
     <>
@@ -92,7 +116,7 @@ export default function KanbanBoard({
         </button>
       </div>
 
-      <div className="flex gap-6 overflow-x-auto pb-6 custom-scrollbar items-start">
+      <div className="flex gap-6 overflow-x-auto pb-6 custom-scrollbar items-start relative">
         <DndContext
           sensors={sensors}
           onDragStart={handleDragStart}
@@ -191,6 +215,19 @@ export default function KanbanBoard({
           );
         }}
       />
+
+      {errorMsg && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-red-500/10 border border-red-500/20 text-red-400 px-5 py-3 rounded-lg shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-5">
+          <AlertCircle className="w-5 h-5 shrink-0" />
+          <span className="text-sm font-medium">{errorMsg}</span>
+          <button
+            onClick={() => setErrorMsg(null)}
+            className="ml-2 p-1 rounded-md hover:bg-red-500/20 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
     </>
   );
 }

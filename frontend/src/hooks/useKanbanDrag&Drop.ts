@@ -228,6 +228,7 @@ export function useKanbanDragAndDrop(
   initialColumns: BoardColumn[],
   token: string,
   currentUserRole: string,
+  onError?: (message: string) => void,
 ) {
   const [columns, setColumns] = useState<BoardColumn[]>(initialColumns);
   const [prevInitialColumns, setPrevInitialColumns] =
@@ -342,9 +343,11 @@ export function useKanbanDragAndDrop(
   const handleColumnMove = async (activeId: string, overId: string) => {
     // Ici on vérifie si la personne a les bons droits pour réorganiser le tableau
     if (currentUserRole !== "OWNER" && currentUserRole !== "PO") {
-      alert(
-        "Action refusée : Vous n'avez pas les droits pour réorganiser le tableau.",
-      );
+      if (onError) {
+        onError(
+          "Action refusée : Vous n'avez pas les droits pour réorganiser le tableau.",
+        );
+      }
       return;
     }
 
@@ -406,9 +409,11 @@ export function useKanbanDragAndDrop(
       currentUserRole !== "PO" &&
       currentUserRole !== "OWNER"
     ) {
-      alert(
-        "Action refusée : Seul un PO ou l'owner peut déplacer un ticket dans cette colonne.",
-      );
+      if (onError) {
+        onError(
+          "Action refusée : Seul un PO ou l'owner peut déplacer un ticket dans cette colonne.",
+        );
+      }
       return;
     }
 

@@ -66,7 +66,7 @@ export function InviteMemberModal({
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-all">
       <div className="bg-surface border border-border-dim rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.5)] w-full max-w-md flex flex-col overflow-hidden">
-        <div className="p-5 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+        <div className="p-5 border-b border-white/5 flex justify-between items-center bg-white/2">
           <h3 className="text-lg font-bold text-white tracking-tight">
             Inviter un membre
           </h3>
