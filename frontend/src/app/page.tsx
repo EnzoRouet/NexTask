@@ -266,7 +266,7 @@ const steps = [
   {
     n: "03",
     title: "Assignez les rôles",
-    desc: "Définissez qui peut faire quoi. Owner, PO, Dev — chacun voit ce dont il a besoin.",
+    desc: "Définissez qui peut faire quoi. Owner, PO, Dev - chacun voit ce dont il a besoin.",
   },
   {
     n: "04",
@@ -362,7 +362,7 @@ export default function LandingPage() {
       <section className="pt-32 pb-20 px-4 sm:px-6 max-w-6xl mx-auto text-center mt-8">
         <div className="inline-flex items-center gap-2 bg-surface border border-border-dim rounded-full px-4 py-1.5 text-xs text-text-main mb-8 backdrop-blur-sm">
           <Circle size={8} className="fill-accent text-accent animate-pulse" />
-          Kanban · Documentation · RBAC — tout en un
+          Kanban · Documentation · RBAC - tout en un
         </div>
         <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold leading-[1.1] mb-6 tracking-tight text-text-main">
           Arrêtez de jongler entre
@@ -526,7 +526,7 @@ export default function LandingPage() {
             </h2>
             <p className="text-text-muted max-w-2xl mx-auto text-lg leading-relaxed">
               Un système RBAC calé sur la réalité des équipes produit. Chaque
-              rôle a exactement les permissions dont il a besoin — ni plus, ni
+              rôle a exactement les permissions dont il a besoin - ni plus, ni
               moins.
             </p>
           </div>
@@ -677,7 +677,7 @@ export default function LandingPage() {
         </h2>
         <p className="text-text-muted text-lg sm:text-xl mb-10 leading-relaxed max-w-2xl mx-auto">
           Rejoignez les équipes dev qui ont centralisé leur workflow dans
-          NexTask. Kanban, documentation et gestion des membres — au même
+          NexTask. Kanban, documentation et gestion des membres - au même
           endroit.
         </p>
         <div className="flex justify-center">
@@ -694,7 +694,7 @@ export default function LandingPage() {
       <footer className="border-t border-border-dim px-4 sm:px-6 py-10 bg-background">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-text-muted font-medium">
           <Logo />
-          <span>© 2026 NexTask — Centralisez. Collaborez. Livrez.</span>
+          <span>© 2026 NexTask - Centralisez. Collaborez. Livrez.</span>
           <div className="flex gap-6">
             <a href="#" className="hover:text-text-main transition-colors">
               Mentions légales

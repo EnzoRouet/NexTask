@@ -52,6 +52,7 @@ export default function KanbanColumn({
       type: "Column",
       column,
     },
+    disabled: !canEdit,
   });
 
   const style = {
@@ -81,12 +82,16 @@ export default function KanbanColumn({
         className={`flex flex-col w-[320px] shrink-0 group ${isDragging ? "z-50" : "z-auto"}`}
       >
         <div
-          {...attributes}
-          {...listeners}
-          className="flex justify-between items-center mb-3 px-1 cursor-grab active:cursor-grabbing hover:bg-white/5 rounded-md transition-colors p-1 -ml-1"
+          {...(canEdit ? attributes : {})}
+          {...(canEdit ? listeners : {})}
+          className={`flex justify-between items-center mb-3 px-1 hover:bg-white/5 rounded-md transition-colors p-1 -ml-1 ${
+            canEdit ? "cursor-grab active:cursor-grabbing" : "cursor-default"
+          }`}
         >
           <div className="flex items-center gap-2">
-            <GripHorizontal className="w-4 h-4 text-text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+            {canEdit && (
+              <GripHorizontal className="w-4 h-4 text-text-muted opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+            )}
             <h2 className="text-sm font-bold text-white tracking-wide flex items-center gap-1.5">
               {column.name}
               {column.isLocked && <Lock className="w-3 h-3 text-red-400" />}

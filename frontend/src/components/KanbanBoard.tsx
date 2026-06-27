@@ -99,13 +99,17 @@ export default function KanbanBoard({
           <span className="text-lg leading-none mb-0.5">+</span> Nouveau Ticket
         </button>
 
-        <button
-          onClick={() => setIsCreateColumnModalOpen(true)}
-          className="bg-surface border border-border-dim text-text-main px-3.5 py-1.5 text-sm font-medium rounded-md transition-all hover:bg-surface-hover hover:border-border-focus flex items-center gap-1.5"
-        >
-          <span className="text-lg leading-none mb-0.5 text-text-muted">+</span>{" "}
-          Nouvelle Colonne
-        </button>
+        {(projectRole === "OWNER" || projectRole === "PO") && (
+          <button
+            onClick={() => setIsCreateColumnModalOpen(true)}
+            className="bg-surface border border-border-dim text-text-main px-3.5 py-1.5 text-sm font-medium rounded-md transition-all hover:bg-surface-hover hover:border-border-focus flex items-center gap-1.5"
+          >
+            <span className="text-lg leading-none mb-0.5 text-text-muted">
+              +
+            </span>{" "}
+            Nouvelle Colonne
+          </button>
+        )}
 
         <button
           onClick={() => setIsInviteModalOpen(true)}
