@@ -5,19 +5,19 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     ports:
-      - "5432:5432" # Expose le port pour que Prisma (en local) puisse s'y connecter
+      - "5432:5432"
     environment:
       POSTGRES_USER: enzo
-      POSTGRES_PASSWORD: supersecretpassword # À changer si tu veux
+      POSTGRES_PASSWORD: supersecretpassword
       POSTGRES_DB: nextask_db
     volumes:
-      - pgdata:/var/lib/postgresql/data # Persistance des données (le volume)
+      - pgdata:/var/lib/postgresql/data # Persistance des données
   api:
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "4000:4000" # Change le 3000 si ton NestJS utilise un autre port
+      - "4000:4000"
     depends_on:
       - postgres
     environment:
@@ -28,7 +28,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000" # Change le 3000 si ton NestJS utilise un autre port
+      - "3000:3000"
     depends_on:
       - api
     environment:

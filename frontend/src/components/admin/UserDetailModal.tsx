@@ -152,7 +152,7 @@ export default function UserDetailModal({
                   className="w-full py-2 bg-surface hover:bg-surface-hover border border-border-dim hover:border-border-focus text-white rounded-md transition-all text-sm font-medium flex items-center justify-center gap-2"
                 >
                   <ShieldAlert className="w-4 h-4 text-text-muted" />
-                  Rétrograder en {user?.role === "ADMIN" ? "USER" : "ADMIN"}
+                  Changer le rôle en {user?.role === "ADMIN" ? "USER" : "ADMIN"}
                 </button>
               )}
             </div>

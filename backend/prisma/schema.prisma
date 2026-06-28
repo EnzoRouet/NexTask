@@ -37,7 +37,6 @@ model User {
   ownedProjects  Project[] @relation("ProjectOwner")
   memberOf       ProjectMember[]
   assignedTickets Ticket[] @relation("TicketAssignee")
-  comments       Comment[]
 
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -80,25 +79,9 @@ model Ticket {
 
   columnId    String
   column      BoardColumn  @relation(fields: [columnId], references: [id])
-  
-  comments    Comment[]
 
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-}
-
-model Comment {
-  id        String   @id @default(uuid())
-  content   String
-  
-  ticketId  String
-  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model BoardColumn {
