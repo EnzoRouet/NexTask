@@ -125,4 +125,4 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 
 ```
 
-_Note : Un jeu de données prêt à l'emploi est disponible dans `/Liverables/db/export_nextask.sql` si vous souhaitez réinitialiser la base de données avec des exemples concrets._
+_Note : Un jeu de données prêt à l'emploi est disponible dans `/Liverables/db/export_nextask.sql` si vous souhaitez réinitialiser la base de données avec des exemples concrets ainsi que les identifiants de connexions des users présents dans `/Liverables/TEST_UTILISATEURS.MD`._
