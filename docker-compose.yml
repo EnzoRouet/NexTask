@@ -33,6 +33,8 @@ services:
       - api
     environment:
       NEXT_PUBLIC_API_URL: "http://localhost:4000"
+    extra_hosts:
+      - "localhost:host-gateway"
 
 volumes:
   pgdata: # Déclaration du volume pour éviter la perte des données au redémarrage

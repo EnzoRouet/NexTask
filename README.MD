@@ -104,3 +104,25 @@ npm install
 npm run dev
 
 ```
+
+### Alternative : Lancement via Docker
+
+Nous proposons deux modes de lancement avec Docker pour faciliter l'évaluation :
+
+**1. Mode Production (Conteneurisation complète) :**
+Lance l'intégralité de l'infrastructure (PostgreSQL + API + Frontend) en environnement isolés :
+
+```bash
+docker compose up --build -d
+
+```
+
+**2. Mode Développement (Hybride) :**
+Lance uniquement la base de données via Docker, tout en conservant vos serveurs locaux (API & Frontend) pour bénéficier du _Hot Reload_ :
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+```
+
+_Note : Un jeu de données prêt à l'emploi est disponible dans `/Liverables/db/export_nextask.sql` si vous souhaitez réinitialiser la base de données avec des exemples concrets._

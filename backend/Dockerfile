@@ -34,4 +34,4 @@ COPY --from=builder /app/prisma ./prisma
 EXPOSE 4000
 
 # Commande de démarrage en production
-CMD ["npm", "run", "start:prod"]
+CMD ["sh", "-c", "npx prisma db push && npm run start:prod"]
